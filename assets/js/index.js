@@ -80,12 +80,70 @@
     if (window.__lenis) {
       window.__lenis.on('scroll', () => { /* no-op; forces layout/paint cadence with Lenis */ });
     }
+
+
+const VH = () => window.innerHeight || document.documentElement.clientHeight;
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+
+  const items = Array.from(document.querySelectorAll('.section-3-element-holder , .section-7-holder , .section-10-img-holder'))
+    .map(el => {
+      const picture = el.querySelector('picture');
+      const img = picture && picture.querySelector('img');
+      if (!picture || !img) return null;
+
+      const scale = parseFloat(img.dataset.scale || el.dataset.scale || 1.2);
+      return {
+        el, img, scale,
+        height: 0,
+        top: 0,
+        extra: 0
+      };
+    })
+    .filter(Boolean);
+
+  const measure = () => {
+    items.forEach(it => {
+      const rect = it.el.getBoundingClientRect();
+      const scrollY = window.scrollY || window.pageYOffset;
+      it.height = rect.height;
+      it.top = rect.top + scrollY;
+      it.extra = (it.scale - 1) * it.height;
+    });
+  };
+
+  measure();
+  window.addEventListener('resize', () => requestAnimationFrame(measure), { passive: true });
+
+  // ✅ This is what the raf() will call
+  window.updateParallax = () => {
+    const scrollY = window.scrollY || window.pageYOffset;
+    const vh = VH();
+
+    items.forEach(it => {
+      const start = it.top - vh;
+      const end   = it.top + it.height;
+      const t = clamp((scrollY - start) / (end - start), 0, 1);
+      const y = (0.5 - t) * it.extra;
+
+      it.img.style.setProperty('--s', it.scale);
+      it.img.style.setProperty('--y', `${y}px`);
+    });
+  };
+
+
+
+
+
   // rAF loop — drives Lenis updates
   function raf(time) {
-    lenis.raf(time);
-    requestAnimationFrame(raf);
-  }
+  lenis.raf(time);
+
+  // ✅ add this new line
+  if (window.updateParallax) window.updateParallax();
+
   requestAnimationFrame(raf);
+}
+requestAnimationFrame(raf);
 
   // Optional: scroll to hash on load if URL contains one (with header offset)
   const stickyOffset = 64; // header height in px
@@ -112,8 +170,20 @@
   // Expose for debugging in the console
   window.__lenis = lenis;
 
+
+
+
+
+
+
+
+  
   /* ===== BASIC ===== */
+  let WindowHeight=window.innerHeight;
   const header = document.querySelector('header');
+  let Section6=document.querySelector('.section-6');
+  let Section6Elements=document.querySelectorAll('.section-6-element');
+  const Section6ImgsFromTop=window.pageYOffset + Section6.getBoundingClientRect().top;
   if (header) header.classList.add('header-loaded');
 
   // Parallax via [data-lenis-speed]
@@ -121,9 +191,45 @@
   lenis.on('scroll', ({ scroll }) => {
     document.querySelectorAll('[data-lenis-speed]').forEach((el) => {
       const speed = parseFloat(el.dataset.lenisSpeed) || 0;
+      if(scroll < 1.5*WindowHeight)
       el.style.transform = `translate3d(0, ${scroll * speed * SCALE}px, 0)`;
+
+      
+  
+    
     });
+
+    if (Section6Elements[0].getBoundingClientRect().top - 1.5*WindowHeight < 0 &&
+      Section6Elements[0].getBoundingClientRect().top + Section6Elements[0].clientHeight + 0.5*WindowHeight  > 0) {
+
+    Section6Elements[0].animate({
+      transform: "translateY(" + (0.08 * (Section6ImgsFromTop - scroll)) + "px )"
+    }, { duration: 1500, fill: "forwards" });
+  }
+if (Section6Elements[1].getBoundingClientRect().top - WindowHeight < 0 &&
+      Section6Elements[1].getBoundingClientRect().top + Section6Elements[1].clientHeight > 0) {
+
+    Section6Elements[1].animate({
+      transform: "translateY(" + (0.15 * (Section6ImgsFromTop - scroll)) + "px )"
+    }, { duration: 1500, fill: "forwards" });
+  }
+  if (Section6Elements[2].getBoundingClientRect().top - WindowHeight < 0 &&
+      Section6Elements[2].getBoundingClientRect().top + Section6Elements[2].clientHeight > 0) {
+        console.log(scroll)
+    Section6Elements[2].animate({
+      transform: "translateY(" + (0.22 * (Section6ImgsFromTop - scroll)) + "px )"
+    }, { duration: 1500, fill: "forwards" });
+  }
   });
+
+
+
+
+
+
+
+
+
 
 
  // ========== Shared cursor bubble ==========
@@ -192,7 +298,9 @@
     }
 
     function render(){
-      track.style.transform = `translateX(${offset}px)`;
+      track.animate({
+        transform : "translateX(" + offset + "px)"
+      },{duration:1200,fill:"forwards"})
       if (btnPrev) btnPrev.disabled = (offset >= 0);
       if (btnNext) btnNext.disabled = (-offset >= maxScroll - 0.5);
     }
@@ -272,7 +380,7 @@
 
       // Apply threshold to avoid initial “jump”
       const dx = Math.abs(dxRaw) < DRAG_THRESHOLD ? 0 : dxRaw;
-      offset = clampOffset(startOffset + dx);
+      offset = clampOffset(startOffset + dx* 0.5);
       render();
 
       const dt = now - lastTs || 16;
