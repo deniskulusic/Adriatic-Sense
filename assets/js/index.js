@@ -85,7 +85,7 @@
 const VH = () => window.innerHeight || document.documentElement.clientHeight;
   const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
-  const items = Array.from(document.querySelectorAll('.section-3-element-holder , .section-7-holder , .section-10-img-holder'))
+  const items = Array.from(document.querySelectorAll('.section-3-element-holder , .section-7-holder , .section-10-img-holder , .blog-element-holder'))
     .map(el => {
       const picture = el.querySelector('picture');
       const img = picture && picture.querySelector('img');
@@ -184,11 +184,43 @@ requestAnimationFrame(raf);
   let Section6=document.querySelector('.section-6');
   let Section6Elements=document.querySelectorAll('.section-6-element');
   const Section6ImgsFromTop=window.pageYOffset + Section6.getBoundingClientRect().top;
+  const menu = document.querySelector('.menu-full');
+  const growSection = document.querySelectorAll('.grow-section');
   if (header) header.classList.add('header-loaded');
 
   // Parallax via [data-lenis-speed]
   const SCALE = 0.1;
   lenis.on('scroll', ({ scroll }) => {
+    if(scroll > WindowHeight - 100){
+      document.querySelector(".menu-full").classList.add("menu-filled")
+    }
+    else{
+      document.querySelector(".menu-full").classList.remove("menu-filled")
+    }
+
+
+    // Top of the screen (0px offset)
+  const viewportTop = scroll;
+
+  let insideGrow = false;
+
+  growSection.forEach(section => {
+    const rectTop = section.offsetTop;
+    const rectBottom = rectTop + section.offsetHeight;
+
+    // Check if viewport top is inside the section boundaries
+    if (viewportTop >= rectTop && viewportTop < rectBottom) {
+      insideGrow = true;
+    }
+  });
+
+  // Toggle the class
+  if (insideGrow) {
+    menu.classList.add('menu-hidden');
+  } else {
+    menu.classList.remove('menu-hidden');
+  }
+
     document.querySelectorAll('[data-lenis-speed]').forEach((el) => {
       const speed = parseFloat(el.dataset.lenisSpeed) || 0;
       if(scroll < 1.5*WindowHeight)
@@ -232,212 +264,491 @@ if (Section6Elements[1].getBoundingClientRect().top - WindowHeight < 0 &&
 
 
 
- // ========== Shared cursor bubble ==========
-  const cursor = document.createElement('div');
-  cursor.className = 'drag-cursor';
-  cursor.setAttribute('aria-hidden', 'true');
-  cursor.innerHTML = `<span class="label">scroll</span><div class="ring" aria-hidden="true"></div>`;
-  document.body.appendChild(cursor);
+ /* =======================================================
+            // 1. SHARED CURSOR LOGIC (for the main slider)
+            // ======================================================= */
+            const cursor = document.createElement('div');
+            cursor.className = 'drag-cursor';
+            cursor.setAttribute('aria-hidden', 'true');
+            // MODIFICATION: Add plus icon and ring elements
+            cursor.innerHTML = `
+                <span class="label">scroll</span>
+                <span class="plus-icon">+</span>
+                <div class="ring" aria-hidden="true"></div>
+            `;
+            document.body.appendChild(cursor);
 
-  let cursorRAF = null;
-  let cursorX = 0, cursorY = 0;
-  let targetX = 0, targetY = 0;
-  let cursorScale = 1, targetScale = 1;
+            let cursorRAF = null;
+            let cursorX = 0, cursorY = 0;
+            let targetX = 0, targetY = 0;
+            let cursorScale = 1, targetScale = 1;
 
-  function showCursor(){ cursor.classList.add('show'); if(cursorRAF==null) cursorLoop(); }
-  function hideCursor(){ cursor.classList.remove('show'); if(cursorRAF!=null){ cancelAnimationFrame(cursorRAF); cursorRAF=null; } }
+            function showCursor(){ cursor.classList.add('show'); if(cursorRAF==null) cursorLoop(); }
+            function hideCursor(){ cursor.classList.remove('show'); if(cursorRAF!=null){ cancelAnimationFrame(cursorRAF); cursorRAF=null; } }
+            
+            function cursorLoop(){
+                cursorX += (targetX - cursorX) * 0.18;
+                cursorY += (targetY - cursorY) * 0.18;
+                cursorScale += (targetScale - cursorScale) * 0.15;
+                // Use style properties for smooth transformation
+                cursor.style.left = cursorX + 'px';
+                cursor.style.top = cursorY + 'px';
+                cursor.style.transform = `translate(-50%, -50%) scale(${cursorScale})`;
+                cursorRAF = requestAnimationFrame(cursorLoop);
+            }
+            window.addEventListener('touchstart', () => hideCursor(), { passive: true });
 
-  function cursorLoop(){
-    cursorX += (targetX - cursorX) * 0.18;
-    cursorY += (targetY - cursorY) * 0.18;
-    cursorScale += (targetScale - cursorScale) * 0.15;
-    cursor.style.left = cursorX + 'px';
-    cursor.style.top  = cursorY + 'px';
-    cursor.style.transform = `translate(-50%, -50%) scale(${cursorScale})`;
-    cursorRAF = requestAnimationFrame(cursorLoop);
-  }
+            // Helper to set cursor mode
+            function setCursorMode(mode) {
+                cursor.classList.remove('cursor-mode-drag', 'cursor-mode-scroll', 'cursor-mode-plus');
+                cursor.classList.add(`cursor-mode-${mode}`);
+                // Update label text
+                if (mode === 'drag' || mode === 'scroll') {
+                    cursor.querySelector('.label').textContent = mode;
+                }
+            }
 
-  // Hide helper on touch
-  window.addEventListener('touchstart', () => hideCursor(), { passive: true });
 
-  // ========== Slider initializer ==========
-  function initSlider(root){
-    const viewport = root.querySelector('.slider-viewport');
-    const track    = root.querySelector('.slider-track');
-    if(!viewport || !track) return;
+            /* =======================================================
+            // 2. PROGRESS BAR LOGIC (Independent)
+            // ======================================================= */
 
-    const btnPrev = root.querySelector('.slider-btn.prev');
-    const btnNext = root.querySelector('.slider-btn.next');
+            const currentSlideCountEl = document.getElementById('currentSlideCount');
+            const totalSlideCountEl = document.getElementById('totalSlideCount');
+            const progressBarIndicator = document.getElementById('progressBarIndicator');
 
-    let offset = 0;           // current translateX in px (<= 0)
-    let maxScroll = 0;        // positive number of px we can scroll to the left
-    let isDragging = false;
-    let startX = 0;
-    let startOffset = 0;
-    let lastX = 0;
-    let lastTs = 0;
-    let velocity = 0;         // px/ms
-    let momentumRAF = null;
+            function updateProgressBarUI(currentIndex, totalSlides) {
+                if (totalSlides === 0) return;
+                
+                const current = currentIndex + 1;
+                // Calculate progress percentage: the bar should fully fill on the LAST slide
+                const progress = (current / totalSlides) * 100;
 
-    const DRAG_THRESHOLD = 3; // px before we consider it a drag (prevents "jump")
+                // Update text counts
+                currentSlideCountEl.textContent = "0" + current;
+                totalSlideCountEl.textContent = "0" + totalSlides;
 
-    function measure(){
-      // Compute the real scrollable width from layout
-      // scrollWidth includes margins/gaps as laid out by CSS (better than constants)
-      const totalWidth = track.scrollWidth;
-      const viewW = viewport.clientWidth;
-      maxScroll = Math.max(0, totalWidth - viewW);
-      // Clamp current offset to new bounds
-      offset = clampOffset(offset);
-    }
+                // Update progress indicator width
+                progressBarIndicator.style.width = `${progress}%`;
+            }
 
-    function clampOffset(x){
-      const v = (x ?? offset);
-      // offset is negative or 0; rightmost is 0, leftmost is -maxScroll
-      return Math.max(-maxScroll, Math.min(0, v));
-    }
 
-    function render(){
-      track.animate({
-        transform : "translateX(" + offset + "px)"
-      },{duration:1200,fill:"forwards"})
-      if (btnPrev) btnPrev.disabled = (offset >= 0);
-      if (btnNext) btnNext.disabled = (-offset >= maxScroll - 0.5);
-    }
+            /* =======================================================
+            // 3. MAIN SLIDER FUNCTIONALITY (Drag & Snap)
+            // ======================================================= */
 
-    function update(){
-      measure();
-      render();
-    }
+            function initSlider(root){
+                const viewport = root.querySelector('.slider-viewport');
+                const track    = root.querySelector('.slider-track');
+                const btnPrev = root.querySelector('.slider-btn.prev');
+                const btnNext = root.querySelector('.slider-btn.next');
+                const cards = Array.from(root.querySelectorAll('.card'));
 
-    function next(){ offset = clampOffset(offset - stepGuess()); render(); }
-    function prev(){ offset = clampOffset(offset + stepGuess()); render(); }
+                if(!viewport || !track) return;
+                
+                const isButtonsOnly = root.classList.contains('buttons-only');
+                const dragEnabled = !isButtonsOnly && root.dataset.drag !== 'false';
 
-    // If you still want step buttons, guess a step by first card width (fallback 300)
-    function stepGuess(){
-      const firstCard = track.querySelector('.card');
-      return firstCard ? (firstCard.getBoundingClientRect().width +
-                         parseFloat(getComputedStyle(firstCard).marginRight||0) +
-                         parseFloat(getComputedStyle(firstCard).marginLeft||0)) : 300;
-    }
+                let offset = 0;           
+                let baseOffset = 0;
+                let maxScroll = 0;
+                let stops = [];
+                let momentumRAF = null;
 
-    // Momentum
-    function stopMomentum(){ if (momentumRAF!=null) cancelAnimationFrame(momentumRAF); momentumRAF=null; }
-    function startMomentum(){
-      stopMomentum();
-      const decay = 0.95;
-      const minVel = 0.05; // px/ms
-      const frame = () => {
-        velocity *= decay;
-        if (Math.abs(velocity) < minVel){
-          stopMomentum();
-          return;
-        }
-        const before = offset;
-        offset = clampOffset(offset + velocity * 16); // ~16ms per frame
-        render();
-        // If we hit an edge, kill momentum immediately
-        if (offset === 0 || offset === -maxScroll) {
-          stopMomentum();
-          return;
-        }
-        // If nothing changed (rare), stop
-        if (offset === before){ stopMomentum(); return; }
-        momentumRAF = requestAnimationFrame(frame);
-      };
-      momentumRAF = requestAnimationFrame(frame);
-    }
+                function measure(){
+                    const viewW = viewport.clientWidth;
 
-    // Pointer Events (covers mouse, touch, pen)
-    viewport.addEventListener('pointerenter', () => { showCursor(); cursor.querySelector('.label').textContent='scroll'; });
-    viewport.addEventListener('pointerleave', () => { hideCursor(); targetScale=1; });
+                    if (cards.length === 0) {
+                        baseOffset = 0;
+                        maxScroll = 0;
+                        stops = [0];
+                        return;
+                    }
 
-    viewport.addEventListener('pointermove', (e) => {
-      targetX = e.clientX;
-      targetY = e.clientY;
+                    const first = cards[0];
+                    const last  = cards[cards.length - 1];
+
+                    const csFirst = getComputedStyle(first);
+                    const csLast  = getComputedStyle(last);
+
+                    // Calculate total track width and offsets
+                    const firstLeftOuter = first.offsetLeft - (parseFloat(csFirst.marginLeft) || 0);
+                    const lastRightOuter = last.offsetLeft + last.offsetWidth + (parseFloat(csLast.marginRight) || 0);
+                    const totalWidth = lastRightOuter - firstLeftOuter;
+
+                    baseOffset = -firstLeftOuter;
+                    maxScroll = Math.max(0, totalWidth - viewW);
+
+                    // Precompute snap positions (aligned to the left edge of each card)
+                    stops = cards.map(card => {
+                        const cs = getComputedStyle(card);
+                        const leftOuter = card.offsetLeft - (parseFloat(cs.marginLeft) || 0);
+                        return clamp(-leftOuter); // Ensure stops are clamped
+                    });
+                    
+                    // Keep offset within bounds
+                    offset = clamp(offset);
+                }
+
+                function clamp(x){
+                    const min = baseOffset - maxScroll;
+                    const max = baseOffset;
+                    return Math.max(min, Math.min(max, x));
+                }
+
+                function render(){
+                    track.style.transform = `translateX(${offset}px)`;
+                    
+                    // Update buttons
+                    if (btnPrev) btnPrev.disabled = (offset >= baseOffset - 0.5);
+                    if (btnNext) btnNext.disabled = (offset <= (baseOffset - maxScroll) + 0.5);
+                    
+                    // Update Progress Bar
+                    let currentIndexForProgress = 0;
+                    // Find the index of the card whose stop position is closest to the current offset
+                    let minDiff = Infinity;
+                    let closestIndex = 0;
+
+                    stops.forEach((stop, index) => {
+                        const diff = Math.abs(stop - offset);
+                        if (diff < minDiff) {
+                            minDiff = diff;
+                            closestIndex = index;
+                        }
+                    });
+                    
+                    updateProgressBarUI(closestIndex, cards.length);
+                }
+
+                function update(){
+                    measure();
+                    // Initial run: align to base offset (first card)
+                    if (Math.abs(offset) < 0.001 && Math.abs(baseOffset) > 0.001) {
+                        offset = baseOffset;
+                    }
+                    render();
+                }
+
+                // Snap logic: Find the next/previous *full card* stop position
+                function findNextStop(current){
+                    const currentCardIndex = stops.findIndex(s => Math.abs(s - current) < 1);
+                    if (currentCardIndex !== -1 && currentCardIndex < stops.length - 1) {
+                         return stops[currentCardIndex + 1];
+                    }
+                    // Find the first card stop position *to the left* of the current position (if not currently snapped)
+                    let nextStop = current;
+                    for (let i = stops.length - 1; i >= 0; i--) {
+                        if (stops[i] < current - 1) { // Stop is further left than current view
+                            nextStop = stops[i];
+                            break;
+                        }
+                    }
+                    return clamp(nextStop);
+                }
+
+                function findPrevStop(current){
+                    const currentCardIndex = stops.findIndex(s => Math.abs(s - current) < 1);
+                    if (currentCardIndex > 0) {
+                         return stops[currentCardIndex - 1];
+                    }
+                    // Find the first card stop position *to the right* of the current position (if not currently snapped)
+                    let prevStop = current;
+                    for (let i = 0; i < stops.length; i++) {
+                        if (stops[i] > current + 1) { // Stop is further right than current view
+                            prevStop = stops[i];
+                            break;
+                        }
+                    }
+                    return clamp(prevStop);
+                }
+                
+                function next(){
+                    offset = findNextStop(offset);
+                    render();
+                }
+                function prev(){
+                    offset = findPrevStop(offset);
+                    render();
+                }
+
+                // Attach button listeners
+                if (btnNext) btnNext.addEventListener('click', next);
+                if (btnPrev) btnPrev.addEventListener('click', prev);
+
+                // Resize & Load handling
+                const roViewport = new ResizeObserver(update);
+                const roTrack    = new ResizeObserver(update);
+                roViewport.observe(viewport);
+                roTrack.observe(track);
+                window.addEventListener('load', update);
+                update();
+                
+                
+                /* --- Cursor and Dragging Logic (From User Input) --- */
+
+                if (isButtonsOnly) {
+                    viewport.addEventListener('pointerenter', () => { 
+                        showCursor(); 
+                        setCursorMode('plus');
+                    });
+                    viewport.addEventListener('pointerleave', () => { 
+                        hideCursor(); 
+                        targetScale=1; 
+                    });
+                    viewport.addEventListener('pointermove', (e) => { 
+                        targetX = e.clientX; 
+                        targetY = e.clientY; 
+                    });
+                    return; 
+                }
+
+                // ======= Dragging only if enabled =======
+                if (!dragEnabled) return; 
+
+                let isDragging = false;
+                let startX = 0, startOffset = 0, lastX = 0, lastTs = 0, velocity = 0;
+                const DRAG_THRESHOLD = 3;
+
+                function stopMomentum(){ if (momentumRAF!=null) cancelAnimationFrame(momentumRAF); momentumRAF=null; }
+                function startMomentum(){
+                    stopMomentum();
+                    const decay = 0.95;
+                    const minVel = 0.05;
+                    const frame = () => {
+                        velocity *= decay;
+                        if (Math.abs(velocity) < minVel) { stopMomentum(); return; }
+                        // Apply momentum, clamp, and render
+                        offset = clamp(offset + velocity * 16); 
+                        render();
+
+                        // Stop momentum if we hit the edge
+                        if (offset === 0 || offset === (baseOffset - maxScroll)) { 
+                            velocity = 0; // stop the velocity abruptly
+                            stopMomentum(); 
+                            return; 
+                        }
+                        momentumRAF = requestAnimationFrame(frame);
+                    };
+                    momentumRAF = requestAnimationFrame(frame);
+                }
+
+                // Cursor bubble (only for draggable sliders)
+                viewport.addEventListener('pointerenter', () => { 
+                    showCursor(); 
+                    setCursorMode('scroll'); 
+                });
+                viewport.addEventListener('pointerleave', () => { hideCursor(); targetScale=1; });
+                viewport.addEventListener('pointermove', (e) => { targetX = e.clientX; targetY = e.clientY; });
+
+                // Pointer events for drag
+                viewport.addEventListener('pointerdown', (e) => {
+                    if (e.button !== 0 && e.pointerType === 'mouse') return;
+                    viewport.setPointerCapture(e.pointerId);
+                    stopMomentum();
+                    isDragging = true;
+                    startX = lastX = e.clientX;
+                    startOffset = offset;
+                    lastTs = performance.now();
+                    velocity = 0;
+                    setCursorMode('drag'); 
+                    targetScale = 0.9;
+                    viewport.classList.add('dragging');
+                    e.preventDefault();
+                });
+
+                viewport.addEventListener('pointermove', (e) => {
+                    if (!isDragging) return;
+                    const now = performance.now();
+                    const dxRaw = e.clientX - startX;
+
+                    const dxBase = Math.abs(dxRaw) < DRAG_THRESHOLD ? 0 : dxRaw;
+                    const dx = dxBase * 1; // Drag dampening
+
+                    offset = clamp(startOffset + dx);
+                    render();
+
+                    const dt = now - lastTs || 16;
+                    velocity = (e.clientX - lastX) / dt;
+                    lastX = e.clientX;
+                    lastTs = now;
+
+                    const speed = Math.min(Math.abs(velocity) * 30, 1);
+                    targetScale = 1 - speed * 0.35;
+                });
+
+                function endDrag(){
+                    if (!isDragging) return;
+                    isDragging = false;
+                    viewport.classList.remove('dragging');
+                    setCursorMode('scroll'); 
+                    targetScale = 1;
+                    
+                    // Start momentum only if it wasn't a static click and we are not at the edge
+                    if (Math.abs(velocity) > 0.01 && offset > (baseOffset - maxScroll) + 1 && offset < baseOffset - 1) { 
+                        startMomentum();
+                    } else {
+                        // Snap back if momentum is negligible
+                        offset = clamp(offset); // Re-clamp just in case
+                        render();
+                    }
+                    velocity = 0; // Reset velocity after drag ends
+                }
+                viewport.addEventListener('pointerup', endDrag);
+                viewport.addEventListener('pointercancel', endDrag);
+                viewport.addEventListener('lostpointercapture', endDrag);
+
+                track.addEventListener('dragstart', (e) => e.preventDefault());
+            }
+
+            // Initialize all sliders
+            document.querySelectorAll('.slider').forEach(initSlider);
+
+
+
+
+
+/* ================= GALLERY LOGIC (DYNAMIC SLIDER) ================= */
+
+// DOM elements
+const gallery = document.querySelector('.fullscreen-gallery');
+const galleryTrack = document.querySelector('.gallery-track'); // NEW: The track element
+const closeBtn = document.querySelector('.gallery-close-btn');
+const prevBtn = document.querySelector('.gallery-prev');
+const nextBtn = document.querySelector('.gallery-next');
+const galleryCounter = document.querySelector('.gallery-counter');
+
+// State
+let allImageUrls = [];
+let currentIndex = -1;
+let totalSlides = 0;
+const TRANSITION_DURATION = 700;
+
+// --- Core Functions ---
+
+function collectAllImageUrls() {
+    const cards = document.querySelectorAll('.opens-gallery .card');
+    allImageUrls = Array.from(cards)
+        .map(card => {
+            const style = card.style.backgroundImage;
+            return style ? style.replace(/url\(['"]?(.*?)['"]?\)/i, '$1') : null;
+        })
+        .filter(url => url);
+    
+    totalSlides = allImageUrls.length;
+}
+
+// NEW: Function to dynamically build the gallery track
+function buildGallerySlides() {
+    collectAllImageUrls();
+    galleryTrack.innerHTML = ''; // Clear existing content
+
+    allImageUrls.forEach(url => {
+        const slide = document.createElement('div');
+        slide.classList.add('gallery-slide');
+
+        const img = document.createElement('img');
+        img.src = url;
+        img.alt = 'Gallery image';
+
+        slide.appendChild(img);
+        galleryTrack.appendChild(slide);
     });
+}
 
-    viewport.addEventListener('pointerdown', (e) => {
-      if (e.button !== 0 && e.pointerType === 'mouse') return; // left button only for mouse
-      viewport.setPointerCapture(e.pointerId);
-      stopMomentum();
-      isDragging = true;
-      startX = lastX = e.clientX;
-      startOffset = offset;
-      lastTs = performance.now();
-      velocity = 0;
-      cursor.querySelector('.label').textContent='drag';
-      targetScale = 0.9;
-      // prevent text/image selection
-      viewport.classList.add('dragging');
-      e.preventDefault();
-    });
+// 2. Update the gallery view (Modified for sliding the track)
+function updateGallery(immediate = false) {
+    if (currentIndex < 0 || currentIndex >= totalSlides) return;
 
-    viewport.addEventListener('pointermove', (e) => {
-      if (!isDragging) return;
-      const now = performance.now();
-      const dxRaw = e.clientX - startX;
+    // Calculate the translation distance (e.g., -100vw for index 1, -200vw for index 2)
+    const offset = currentIndex * -100; // In percentage/vw
 
-      // Apply threshold to avoid initial “jump”
-      const dx = Math.abs(dxRaw) < DRAG_THRESHOLD ? 0 : dxRaw;
-      offset = clampOffset(startOffset + dx* 0.5);
-      render();
+    // Set transition speed
+    galleryTrack.style.transitionDuration = immediate ? '0ms' : `${TRANSITION_DURATION}ms`;
+    
+    // Apply the transformation
+    galleryTrack.style.transform = `translateX(${offset}vw)`;
 
-      const dt = now - lastTs || 16;
-      velocity = (e.clientX - lastX) / dt; // px/ms
-      lastX = e.clientX;
-      lastTs = now;
+    // Update buttons and counter
+    prevBtn.disabled = currentIndex === 0;
+    nextBtn.disabled = currentIndex === totalSlides - 1;
+    galleryCounter.textContent = `${currentIndex + 1}/${totalSlides}`;
+}
 
-      // Scale cursor with speed (faster => smaller)
-      const speed = Math.min(Math.abs(velocity) * 30, 1);
-      targetScale = 1 - speed * 0.35;
-    });
+// 3. Open the gallery
+function openGallery(startIndex) {
+    currentIndex = startIndex;
+    
+    gallery.classList.add('is-open');
+    gallery.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    
+    // Jump instantly to the starting slide
+    updateGallery(true); 
+}
 
-    function endDrag(){
-      if (!isDragging) return;
-      isDragging = false;
-      viewport.classList.remove('dragging');
-      cursor.querySelector('.label').textContent='scroll';
-      targetScale = 1;
+// 4. Close the gallery
+function closeGallery() {
+    gallery.classList.remove('is-open');
+    gallery.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+}
 
-      // If we are at the edge, don't bother starting momentum
-      if (offset === 0 || offset === -maxScroll) { velocity = 0; return; }
-      startMomentum();
+// --- Event Handlers ---
+
+// Navigation (Simply changes index and calls update)
+function navigate(direction) {
+    let newIndex = currentIndex + direction;
+    if (newIndex >= 0 && newIndex < totalSlides) {
+        currentIndex = newIndex;
+        updateGallery(false); // Animate the slide
     }
+}
 
-    viewport.addEventListener('pointerup',   endDrag);
-    viewport.addEventListener('pointercancel', endDrag);
-    viewport.addEventListener('lostpointercapture', endDrag);
+// 1. Article click handler (to open the gallery)
+document.querySelectorAll('.opens-gallery .card').forEach((card, index) => {
+    card.style.cursor = 'pointer'; 
+    card.addEventListener('click', () => {
+        // Ensure slides are built before opening
+        if (totalSlides === 0) buildGallerySlides(); 
+        openGallery(index);
+    });
+});
 
-    // Buttons
-    if (btnNext) btnNext.addEventListener('click', next);
-    if (btnPrev) btnPrev.addEventListener('click', prev);
+// 2. Gallery button event listeners
+closeBtn.addEventListener('click', closeGallery);
+prevBtn.addEventListener('click', () => navigate(-1));
+nextBtn.addEventListener('click', () => navigate(1));
 
-    // Resize-aware (handles responsive images/content)
-    const roViewport = new ResizeObserver(() => update());
-    const roTrack    = new ResizeObserver(() => update());
-    roViewport.observe(viewport);
-    roTrack.observe(track);
-    window.addEventListener('load', update); // ensure images are loaded
-    update();
-  }
+// 3. Keyboard navigation
+document.addEventListener('keydown', (e) => {
+    if (!gallery.classList.contains('is-open')) return;
 
-  // Initialize all .slider sections
-  document.querySelectorAll('.slider').forEach(initSlider);
+    if (e.key === 'Escape') {
+        closeGallery();
+    } else if (e.key === 'ArrowLeft') {
+        e.preventDefault(); 
+        navigate(-1);
+    } else if (e.key === 'ArrowRight') {
+        e.preventDefault(); 
+        navigate(1);
+    }
+});
 
-
-
-
-
-
-
-
-
+// Initial Setup: Build the slides when the page loads
+window.addEventListener('load', buildGallerySlides);
 
 
 
 
 
+
+
+
+
+
+
+
+/*GROW SECTION*/
 
 
 
@@ -497,6 +808,7 @@ if (Section6Elements[1].getBoundingClientRect().top - WindowHeight < 0 &&
         s.frame.style.transform = `scale(${frameScale})`;
         if (frameScale >= 1) {
           document.querySelector(".overlay").classList.add('overlay-text-active');
+          console.log(scroll)
         }
         // Video: apply curve to change pace
         const pv = Math.pow(p, s.vCurve); // <1 = faster at start, >1 = slower at start
@@ -524,10 +836,6 @@ if (Section6Elements[1].getBoundingClientRect().top - WindowHeight < 0 &&
   }
 
 
- document.querySelector(".han-menu-full").addEventListener("click", function(){
-  document.querySelector(".menu-full").classList.toggle("menu-active");
- });
- const menu = document.querySelector('.menu-full');
     if (!menu) return;
 
     let threshold = window.innerHeight; // 100vh
@@ -561,5 +869,183 @@ if (Section6Elements[1].getBoundingClientRect().top - WindowHeight < 0 &&
 
     // Run once on load
     apply();
-  
+
+
+
+    
+/*END OF GROW SECTION*/
+
+
+
+ 
+const slider = document.getElementById('review_slider');
+    const track = document.getElementById('review_track');
+    const prevBtn2 = slider.querySelector('.review_btn.review_prev');
+    const nextBtn2 = slider.querySelector('.review_btn.review_next');
+
+    const VISIBLE = 3; // show three at a time
+
+    let slideEls = Array.from(track.children);
+
+    // Clone first/last N for seamless edges
+    function addClones() {
+      // Clean any existing clones (idempotent re-init on resize)
+      Array.from(track.children).forEach((el) => {
+        if (el.dataset.clone === 'true') el.remove();
+      });
+
+      slideEls = Array.from(track.children);
+      const firstClones = slideEls.slice(0, VISIBLE).map(el => { const c = el.cloneNode(true); c.dataset.clone = 'true'; return c; });
+      const lastClones  = slideEls.slice(-VISIBLE).map(el => { const c = el.cloneNode(true); c.dataset.clone = 'true'; return c; });
+      // Prepend last clones, append first clones
+      lastClones.forEach(c => track.insertBefore(c, track.firstChild));
+      firstClones.forEach(c => track.appendChild(c));
+    }
+
+    // Compute geometry
+    let index = VISIBLE; // start on first real slide (after prepended clones)
+    let step = 0; // pixel distance per move
+
+    function computeStep() {
+      const firstCard = track.querySelector('.review_card');
+      const gap = parseFloat(getComputedStyle(track).gap) || 0;
+      if (!firstCard) return 0;
+      const cardWidth = firstCard.getBoundingClientRect().width; // gap is separate
+      step = Math.round(cardWidth + gap);
+      return step;
+    }
+
+    function updateActive() {
+      // Center of the 3 visible slides is index + 1
+      const centerIdx = Math.min(track.children.length - 1, Math.max(0, index + 1));
+      const cards = track.querySelectorAll('.review_card');
+      cards.forEach(c => { c.classList.remove('active'); c.removeAttribute('aria-current'); });
+      const centerEl = track.children[centerIdx];
+      if (centerEl && centerEl.classList.contains('review_card')) {
+        centerEl.classList.add('active');
+        centerEl.setAttribute('aria-current', 'true');
+      }
+    }
+
+    function jumpWithoutAnim(newIndex) {
+      track.style.transition = 'none';
+      index = newIndex;
+      track.style.transform = `translateX(${-index * step}px)`;
+      updateActive();
+      // force reflow to apply instantly, then restore transition
+      track.getBoundingClientRect();
+      requestAnimationFrame(() => {
+        track.style.transition = 'transform 420ms ease';
+      });
+    }
+
+    function goTo(newIndex) {
+      index = newIndex;
+      track.style.transform = `translateX(${-index * step}px)`;
+      updateActive();
+    }
+
+    function disableDuringTransition(disabled=true) {
+      prevBtn2.disabled = disabled; nextBtn2.disabled = disabled;
+    }
+
+    function setup() {
+      addClones();
+      computeStep();
+      // Position to first real slide after clones
+      track.style.transition = 'none';
+      track.style.transform = `translateX(${-index * step}px)`;
+      updateActive();
+      // enable transition after first paint
+      requestAnimationFrame(() => track.style.transition = 'transform 420ms ease');
+    }
+
+    // Transition end: snap back if we've crossed into clones
+    track.addEventListener('transitionend', () => {
+      disableDuringTransition(false);
+      const total = track.children.length; // includes clones
+      const realCount = total - (VISIBLE * 2);
+      const firstReal = VISIBLE; // after prepended clones
+      const lastRealStart = firstReal + realCount - 1;
+
+      if (index > lastRealStart) {
+        // passed the end into appended clones — snap to matching real index
+        const delta = index - (lastRealStart + 1);
+        jumpWithoutAnim(firstReal + delta);
+      } else if (index < firstReal) {
+        // went to the left into prepended clones — snap to matching real index
+        const delta = firstReal - index;
+        jumpWithoutAnim(lastRealStart - delta + 1);
+      } else {
+        updateActive();
+      }
+    });
+
+    nextBtn2.addEventListener('click', () => {
+      disableDuringTransition(true);
+      goTo(index + 1);
+    });
+
+    prevBtn2.addEventListener('click', () => {
+      disableDuringTransition(true);
+      goTo(index - 1);
+    });
+
+    // Keyboard support
+    slider.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') nextBtn2.click();
+      if (e.key === 'ArrowLeft')  prevBtn2.click();
+    });
+    slider.tabIndex = 0; // make focusable for keyboard nav
+
+    // Basic drag / swipe support
+    let startX = 0; let dragging = false; let startTransform = 0;
+    const onPointerDown = (e) => {
+      dragging = true; startX = e.clientX || e.touches?.[0]?.clientX || 0;
+      const matrix = new DOMMatrix(getComputedStyle(track).transform);
+      startTransform = matrix.m41; // current translateX
+      track.style.transition = 'none';
+    };
+    const onPointerMove = (e) => {
+      if (!dragging) return;
+      const x = e.clientX || e.touches?.[0]?.clientX || 0;
+      const delta = x - startX;
+      track.style.transform = `translateX(${startTransform + delta}px)`;
+    };
+    const onPointerUp = (e) => {
+      if (!dragging) return; dragging = false;
+      const x = e.clientX || e.changedTouches?.[0]?.clientX || 0;
+      const delta = x - startX;
+      // threshold: move at least 1/4 step to change slide
+      const threshold = step * 0.25;
+      requestAnimationFrame(() => track.style.transition = 'transform 420ms ease');
+      if (Math.abs(delta) > threshold) {
+        if (delta < 0) goTo(index + 1); else goTo(index - 1);
+      } else {
+        goTo(index); // snap back
+      }
+    };
+    track.addEventListener('mousedown', onPointerDown);
+    track.addEventListener('touchstart', onPointerDown, { passive: true });
+    window.addEventListener('mousemove', onPointerMove);
+    window.addEventListener('touchmove', onPointerMove, { passive: true });
+    window.addEventListener('mouseup', onPointerUp);
+    window.addEventListener('touchend', onPointerUp);
+
+    // Recompute on resize and re-init clones so card width changes are respected
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        const previousRealOffset = index - VISIBLE; // index within real range
+        setup();
+        // restore equivalent visual position after resize
+        jumpWithoutAnim(VISIBLE + Math.max(0, previousRealOffset));
+      }, 100);
+    });
+
+    setup();
+
+
+
 })();
