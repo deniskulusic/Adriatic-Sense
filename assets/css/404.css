@@ -1,3 +1,318 @@
+@font-face {
+  font-family: "Molde Expanded";
+  src: url("../fonts/Molde-Expanded-Black.woff2") format("woff2"), url("../fonts/Molde-Expanded-Black.woff") format("woff");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Molde Expanded";
+  src: url("../fonts/Molde-Expanded-Light.woff2") format("woff2"), url("../fonts/Molde-Expanded-Light.woff") format("woff");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Molde Expanded Reverse";
+  src: url("../fonts/Molde-Expanded-RegularReverse.woff2") format("woff2"), url("../fonts/Molde-Expanded-RegularReverse.woff") format("woff");
+  font-weight: normal;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Molde Expanded";
+  src: url("../fonts/Molde-Expanded-RegularItalic.woff2") format("woff2"), url("../fonts/Molde-Expanded-RegularItalic.woff") format("woff");
+  font-weight: normal;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Molde Expanded";
+  src: url("../fonts/Molde-Expanded-BlackItalic.woff2") format("woff2"), url("../fonts/Molde-Expanded-BlackItalic.woff") format("woff");
+  font-weight: 900;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Molde Expanded";
+  src: url("../fonts/Molde-Expanded-BoldItalic.woff2") format("woff2"), url("../fonts/Molde-Expanded-BoldItalic.woff") format("woff");
+  font-weight: bold;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Molde Expanded Heavy Reverse";
+  src: url("../fonts/Molde-Expanded-HeavyReverse.woff2") format("woff2"), url("../fonts/Molde-Expanded-HeavyReverse.woff") format("woff");
+  font-weight: 900;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Molde Expanded";
+  src: url("../fonts/Molde-Expanded-Bold.woff2") format("woff2"), url("../fonts/Molde-Expanded-Bold.woff") format("woff");
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Molde Expanded";
+  src: url("../fonts/Molde-Expanded-Heavy.woff2") format("woff2"), url("../fonts/Molde-Expanded-Heavy.woff") format("woff");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Molde Expanded Light Reverse";
+  src: url("../fonts/Molde-Expanded-LightReverse.woff2") format("woff2"), url("../fonts/Molde-Expanded-LightReverse.woff") format("woff");
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Molde Expanded";
+  src: url("../fonts/Molde-Expanded-HeavyItalic.woff2") format("woff2"), url("../fonts/Molde-Expanded-HeavyItalic.woff") format("woff");
+  font-weight: 900;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Molde Expanded Black Reverse";
+  src: url("../fonts/Molde-Expanded-BlackReverse.woff2") format("woff2"), url("../fonts/Molde-Expanded-BlackReverse.woff") format("woff");
+  font-weight: 900;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Molde Expanded";
+  src: url("../fonts/Molde-Expanded-Medium.woff2") format("woff2"), url("../fonts/Molde-Expanded-Medium.woff") format("woff");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Molde Expanded Bold Reverse";
+  src: url("../fonts/Molde-Expanded-BoldReverse.woff2") format("woff2"), url("../fonts/Molde-Expanded-BoldReverse.woff") format("woff");
+  font-weight: bold;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Molde Expanded";
+  src: url("../fonts/Molde-Expanded-LightItalic.woff2") format("woff2"), url("../fonts/Molde-Expanded-LightItalic.woff") format("woff");
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Molde Expanded Medium Reverse";
+  src: url("../fonts/Molde-Expanded-MediumReverse.woff2") format("woff2"), url("../fonts/Molde-Expanded-MediumReverse.woff") format("woff");
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Molde Expanded";
+  src: url("../fonts/Molde-Expanded-SemiboldItalic.woff2") format("woff2"), url("../fonts/Molde-Expanded-SemiboldItalic.woff") format("woff");
+  font-weight: 600;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Molde Expanded";
+  src: url("../fonts/Molde-Expanded-MediumItalic.woff2") format("woff2"), url("../fonts/Molde-Expanded-MediumItalic.woff") format("woff");
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Molde Expanded";
+  src: url("../fonts/Molde-Expanded-UltralightItalic.woff2") format("woff2"), url("../fonts/Molde-Expanded-UltralightItalic.woff") format("woff");
+  font-weight: 200;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Molde Expanded Ultralight Reverse";
+  src: url("../fonts/Molde-Expanded-UltralightReverse.woff2") format("woff2"), url("../fonts/Molde-Expanded-UltralightReverse.woff") format("woff");
+  font-weight: 200;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Molde Expanded Semibold Reverse";
+  src: url("../fonts/Molde-Expanded-SemiboldReverse.woff2") format("woff2"), url("../fonts/Molde-Expanded-SemiboldReverse.woff") format("woff");
+  font-weight: 600;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Molde Expanded";
+  src: url("../fonts/Molde-Expanded-Regular.woff2") format("woff2"), url("../fonts/Molde-Expanded-Regular.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Molde Expanded";
+  src: url("../fonts/Molde-Expanded-Semibold.woff2") format("woff2"), url("../fonts/Molde-Expanded-Semibold.woff") format("woff");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Molde Expanded Thin Reverse";
+  src: url("../fonts/Molde-Expanded-ThinReverse.woff2") format("woff2"), url("../fonts/Molde-Expanded-ThinReverse.woff") format("woff");
+  font-weight: 100;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Molde Expanded";
+  src: url("../fonts/Molde-Expanded-Ultralight.woff2") format("woff2"), url("../fonts/Molde-Expanded-Ultralight.woff") format("woff");
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Molde Expanded";
+  src: url("../fonts/Molde-Expanded-ThinItalic.woff2") format("woff2"), url("../fonts/Molde-Expanded-ThinItalic.woff") format("woff");
+  font-weight: 100;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Molde Expanded";
+  src: url("../fonts/Molde-Expanded-Thin.woff2") format("woff2"), url("../fonts/Molde-Expanded-Thin.woff") format("woff");
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "TT Norms Pro Expanded";
+  src: url("../fonts/TTNormsProExpanded-Thin.otf") format("opentype");
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "TT Norms Pro Expanded";
+  src: url("../fonts/TTNormsProExpanded-ThinItalic.otf") format("opentype");
+  font-weight: 100;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "TT Norms Pro Expanded";
+  src: url("../fonts/TTNormsProExpanded-ExtraLight.otf") format("opentype");
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "TT Norms Pro Expanded";
+  src: url("../fonts/TTNormsProExpanded-ExtraLightItalic.otf") format("opentype");
+  font-weight: 200;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "TT Norms Pro Expanded";
+  src: url("../fonts/TTNormsProExpanded-Light.otf") format("opentype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "TT Norms Pro Expanded";
+  src: url("../fonts/TTNormsProExpanded-LightItalic.otf") format("opentype");
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "TT Norms Pro Expanded";
+  src: url("../fonts/TTNormsProExpanded-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "TT Norms Pro Expanded";
+  src: url("../fonts/TTNormsProExpanded-Italic.otf") format("opentype");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "TT Norms Pro Expanded";
+  src: url("../fonts/TTNormsProExpanded-Medium.otf") format("opentype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "TT Norms Pro Expanded";
+  src: url("../fonts/TTNormsProExpanded-MediumItalic.otf") format("opentype");
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "TT Norms Pro Expanded";
+  src: url("../fonts/TTNormsProExpanded-DemiBold.otf") format("opentype");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "TT Norms Pro Expanded";
+  src: url("../fonts/TTNormsProExpanded-DemiBoldItalic.otf") format("opentype");
+  font-weight: 600;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "TT Norms Pro Expanded";
+  src: url("../fonts/TTNormsProExpanded-Bold.otf") format("opentype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "TT Norms Pro Expanded";
+  src: url("../fonts/TTNormsProExpanded-BoldItalic.otf") format("opentype");
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "TT Norms Pro Expanded";
+  src: url("../fonts/TTNormsProExpanded-ExtraBold.otf") format("opentype");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "TT Norms Pro Expanded";
+  src: url("../fonts/TTNormsProExpanded-ExtraBoldItalic.otf") format("opentype");
+  font-weight: 800;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "TT Norms Pro Expanded";
+  src: url("../fonts/TTNormsProExpanded-Black.otf") format("opentype");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "TT Norms Pro Expanded";
+  src: url("../fonts/TTNormsProExpanded-BlackItalic.otf") format("opentype");
+  font-weight: 900;
+  font-style: italic;
+  font-display: swap;
+}
 html {
   scroll-behavior: smooth;
 }
@@ -104,7 +419,7 @@ body {
   font-size: 112px;
   line-height: 100%;
   margin: 0;
-  font-family: "Inter", sans-serif;
+  font-family: "Molde Expanded", sans-serif;
 }
 
 h1 {
@@ -113,7 +428,7 @@ h1 {
   line-height: 100%;
   letter-spacing: 0.03em;
   margin: 0;
-  font-family: "Inter", sans-serif;
+  font-family: "Molde Expanded", sans-serif;
 }
 
 h2 {
@@ -121,7 +436,7 @@ h2 {
   font-size: 54px;
   line-height: 110%;
   margin: 0;
-  font-family: "Inter", sans-serif;
+  font-family: "Molde Expanded", sans-serif;
 }
 
 h3 {
@@ -129,7 +444,7 @@ h3 {
   font-size: 38px;
   line-height: 52px;
   margin: 0;
-  font-family: "Inter", sans-serif;
+  font-family: "Molde Expanded", sans-serif;
 }
 
 h4 {
@@ -137,11 +452,11 @@ h4 {
   font-size: 24px;
   line-height: 100%;
   margin: 0;
-  font-family: "Inter", sans-serif;
+  font-family: "Molde Expanded", sans-serif;
 }
 
 h5 {
-  font-family: "Work Sans", sans-serif;
+  font-family: "Molde Expanded", sans-serif;
   font-weight: 500;
   font-size: 12px;
   line-height: 100%;
@@ -151,7 +466,7 @@ h5 {
 }
 
 p {
-  font-family: "Work Sans", sans-serif;
+  font-family: "TT Norms Pro Expanded", sans-serif;
   font-weight: 300;
   font-size: 15px;
   line-height: 180%;
@@ -174,7 +489,7 @@ p {
   font-size: 14px;
   line-height: 18px;
   letter-spacing: 0.24em;
-  font-family: "Inter", sans-serif;
+  font-family: "Molde Expanded", sans-serif;
   max-width: 1000px;
 }
 
@@ -188,7 +503,7 @@ p {
   font-size: 14px;
   line-height: 18px;
   letter-spacing: 0.24em;
-  font-family: "Inter", sans-serif;
+  font-family: "Molde Expanded", sans-serif;
   cursor: pointer;
 }
 
@@ -273,7 +588,7 @@ p {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-family: "Clash Display", sans-serif;
+  font-family: "Molde Expanded", sans-serif;
   font-style: normal;
   font-weight: 500;
   font-size: 13px;
@@ -370,7 +685,7 @@ p {
   height: -moz-fit-content;
   height: fit-content;
   grid-column: span 12;
-  font-family: "Inter", sans-serif;
+  font-family: "Molde Expanded", sans-serif;
   font-style: normal;
   font-weight: 400;
   font-size: 45px;
@@ -507,7 +822,7 @@ footer a {
 }
 .bot div a {
   margin-left: 60px;
-  font-family: "Work Sans", sans-serif;
+  font-family: "TT Norms Pro Expanded", sans-serif;
 }
 
 @media only screen and (max-width: 950px) {

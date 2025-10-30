@@ -793,7 +793,6 @@ header video, header img {
   text-align: center;
 }
 .section-2 p {
-  font-family: "Inter", sans-serif;
   font-weight: 500;
   font-style: Medium;
   font-size: 32px;
@@ -1393,7 +1392,7 @@ header video, header img {
 }
 
 .section-6-element-holder:hover img {
-  scale: 1.1;
+  transform: scale(1.1);
 }
 
 .section-6-element {
