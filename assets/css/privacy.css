@@ -1141,23 +1141,12 @@ footer h3 {
 }
 .naslov div {
   display: flex;
-  justify-content: end;
+  justify-content: center;
   align-content: center;
-  text-align: end;
+  text-align: center;
   -moz-column-gap: 16px;
        column-gap: 16px;
-  grid-column: 5/span 4;
-}
-.naslov div img {
-  margin-top: 20px;
-  height: 92px;
-  width: auto;
-}
-.naslov div img:last-of-type {
-  margin-right: 12px;
-}
-.naslov div:first-of-type {
-  justify-content: start;
+  grid-column: span 12;
 }
 
 .shine {

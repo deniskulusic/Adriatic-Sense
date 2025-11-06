@@ -472,6 +472,9 @@ section {
     position: relative;
     padding-top: 140px;
 }
+.first-section{
+  padding-top: 90px !important;
+}
 
 .grid {
     display: grid;
@@ -756,7 +759,7 @@ color: white;
   border: 0px solid white;
   background-color: #132b51;
   color: white;
-  padding: 12px 28px;
+  padding: 14px 34px;
   font-size: 18px;
 }
 .button-header:hover{
@@ -828,7 +831,7 @@ letter-spacing: 0.21em;
 transition: .5s;
     }
     
-    .menu-full{
+    .menu-full , .inqury{
         display: flex;
         position: fixed;
         height: auto;
@@ -837,7 +840,25 @@ transition: .5s;
         flex-direction: column;
         z-index: 10;
         transition:  0.5s ease-in-out;
+        top: 0;
     }
+    .inqury{
+      height: 100px;
+      top: -100px;
+      transition-delay: 0s;
+      .navbar{
+        justify-content: end;
+      }
+    }
+    .active-inq.inqury{
+      top: 0;
+      transition-delay: .5s;
+    }
+    .active-inq.menu-full{
+      top: -100px;
+      transition-delay: 0s;
+    }
+    
     .menu-div::-webkit-scrollbar {
         display: none; /* for Chrome, Safari, and Opera */
       }
@@ -989,7 +1010,13 @@ footer{
     color: white;
     text-align: start;
   }
-  
+
+}
+.footer-line{
+  height: 1px;
+  grid-column: span 12;
+  background-color: rgb(142, 159, 172);
+  margin-top: 45px;
 }
 .sign-up{
   display: flex;

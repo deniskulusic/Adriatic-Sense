@@ -1192,24 +1192,12 @@ grid-column: 4/span 2;
     
     div{
         display: flex;
-        justify-content: end;
+        justify-content: center;
         align-content: center;
-        text-align: end;
+        text-align: center;
         column-gap: 16px;
-        grid-column: 5/ span 4;
+        grid-column: span 12;
         
-        img{
-            margin-top: 20px;
-            height: 92px;
-            width: auto;
-        }
-        img:last-of-type{
-            margin-right: 12px;
-        }
-        
-    }
-    div:first-of-type{
-      justify-content: start;
     }
     
 }

@@ -262,347 +262,350 @@ if (Section6Elements[1].getBoundingClientRect().top - WindowHeight < 0 &&
 
 
 
+/* =======================================================
+        // 1. SHARED CURSOR LOGIC (for the main slider)
+        // ======================================================= */
+const cursor = document.createElement('div');
+cursor.className = 'drag-cursor';
+cursor.setAttribute('aria-hidden', 'true');
+// MODIFICATION: Add plus icon and ring elements
+cursor.innerHTML = `
+    <span class="label">scroll</span>
+    <span class="plus-icon">+</span>
+    <div class="ring" aria-hidden="true"></div>
+`;
+document.body.appendChild(cursor);
+
+let cursorRAF = null;
+let cursorX = 0, cursorY = 0;
+let targetX = 0, targetY = 0;
+let cursorScale = 1, targetScale = 1;
+
+function showCursor(){ cursor.classList.add('show'); if(cursorRAF==null) cursorLoop(); }
+function hideCursor(){ cursor.classList.remove('show'); if(cursorRAF!=null){ cancelAnimationFrame(cursorRAF); cursorRAF=null; } }
+
+function cursorLoop(){
+    cursorX += (targetX - cursorX) * 0.18;
+    cursorY += (targetY - cursorY) * 0.18;
+    cursorScale += (targetScale - cursorScale) * 0.15;
+    // Use style properties for smooth transformation
+    cursor.style.left = cursorX + 'px';
+    cursor.style.top = cursorY + 'px';
+    cursor.style.transform = `translate(-50%, -50%) scale(${cursorScale})`;
+    cursorRAF = requestAnimationFrame(cursorLoop);
+}
+window.addEventListener('touchstart', () => hideCursor(), { passive: true });
+
+// Helper to set cursor mode
+function setCursorMode(mode) {
+    cursor.classList.remove('cursor-mode-drag', 'cursor-mode-scroll', 'cursor-mode-plus');
+    cursor.classList.add(`cursor-mode-${mode}`);
+    // Update label text
+    if (mode === 'drag' || mode === 'scroll') {
+        cursor.querySelector('.label').textContent = mode;
+    }
+}
 
 
- /* =======================================================
-            // 1. SHARED CURSOR LOGIC (for the main slider)
-            // ======================================================= */
-            const cursor = document.createElement('div');
-            cursor.className = 'drag-cursor';
-            cursor.setAttribute('aria-hidden', 'true');
-            // MODIFICATION: Add plus icon and ring elements
-            cursor.innerHTML = `
-                <span class="label">scroll</span>
-                <span class="plus-icon">+</span>
-                <div class="ring" aria-hidden="true"></div>
-            `;
-            document.body.appendChild(cursor);
+/* =======================================================
+    // 2. PROGRESS BAR LOGIC (Independent)
+    // ======================================================= */
 
-            let cursorRAF = null;
-            let cursorX = 0, cursorY = 0;
-            let targetX = 0, targetY = 0;
-            let cursorScale = 1, targetScale = 1;
+const currentSlideCountEl = document.getElementById('currentSlideCount');
+const totalSlideCountEl = document.getElementById('totalSlideCount');
+const progressBarIndicator = document.getElementById('progressBarIndicator');
 
-            function showCursor(){ cursor.classList.add('show'); if(cursorRAF==null) cursorLoop(); }
-            function hideCursor(){ cursor.classList.remove('show'); if(cursorRAF!=null){ cancelAnimationFrame(cursorRAF); cursorRAF=null; } }
-            
-            function cursorLoop(){
-                cursorX += (targetX - cursorX) * 0.18;
-                cursorY += (targetY - cursorY) * 0.18;
-                cursorScale += (targetScale - cursorScale) * 0.15;
-                // Use style properties for smooth transformation
-                cursor.style.left = cursorX + 'px';
-                cursor.style.top = cursorY + 'px';
-                cursor.style.transform = `translate(-50%, -50%) scale(${cursorScale})`;
-                cursorRAF = requestAnimationFrame(cursorLoop);
+function updateProgressBarUI(currentIndex, totalSlides) {
+    if (totalSlides === 0) return;
+    
+    const current = currentIndex + 1;
+    // Calculate progress percentage: the bar should fully fill on the LAST slide
+    const progress = (current / totalSlides) * 100;
+
+    // Update text counts
+    currentSlideCountEl.textContent = "0" + current;
+    totalSlideCountEl.textContent = "0" + totalSlides;
+
+    // Update progress indicator width
+    progressBarIndicator.style.width = `${progress}%`;
+}
+
+
+/* =======================================================
+    // 3. MAIN SLIDER FUNCTIONALITY (Drag & Snap)
+    // ======================================================= */
+
+function initSlider(root){
+    const viewport = root.querySelector('.slider-viewport');
+    const track    = root.querySelector('.slider-track');
+    const btnPrev = root.querySelector('.slider-btn.prev');
+    const btnNext = root.querySelector('.slider-btn.next');
+    const cards = Array.from(root.querySelectorAll('.card'));
+
+    if(!viewport || !track) return;
+    
+    const isButtonsOnly = root.classList.contains('buttons-only');
+    const dragEnabled = !isButtonsOnly && root.dataset.drag !== 'false';
+
+    let offset = 0;           
+    let baseOffset = 0;
+    let maxScroll = 0;
+    let stops = [];
+    let momentumRAF = null;
+
+    function measure(){
+        const viewW = viewport.clientWidth;
+
+        if (cards.length === 0) {
+            baseOffset = 0;
+            maxScroll = 0;
+            stops = [0];
+            return;
+        }
+
+        const first = cards[0];
+        const last  = cards[cards.length - 1];
+
+        const csFirst = getComputedStyle(first);
+        const csLast  = getComputedStyle(last);
+
+        // Calculate total track width and offsets
+        const firstLeftOuter = first.offsetLeft - (parseFloat(csFirst.marginLeft) || 0);
+        const lastRightOuter = last.offsetLeft + last.offsetWidth + (parseFloat(csLast.marginRight) || 0);
+        const totalWidth = lastRightOuter - firstLeftOuter;
+
+        baseOffset = -firstLeftOuter;
+        maxScroll = Math.max(0, totalWidth - viewW);
+
+        // Precompute snap positions (aligned to the left edge of each card)
+        stops = cards.map(card => {
+            const cs = getComputedStyle(card);
+            const leftOuter = card.offsetLeft - (parseFloat(cs.marginLeft) || 0);
+            return clamp(-leftOuter); // Ensure stops are clamped
+        });
+        
+        // Keep offset within bounds
+        offset = clamp(offset);
+    }
+
+    function clamp(x){
+        const min = baseOffset - maxScroll;
+        const max = baseOffset;
+        return Math.max(min, Math.min(max, x));
+    }
+
+    function render(){
+        track.style.transform = `translateX(${offset}px)`;
+        
+        // Update buttons
+        if (btnPrev) btnPrev.disabled = (offset >= baseOffset - 0.5);
+        if (btnNext) btnNext.disabled = (offset <= (baseOffset - maxScroll) + 0.5);
+        
+        // Update Progress Bar
+        let currentIndexForProgress = 0;
+        // Find the index of the card whose stop position is closest to the current offset
+        let minDiff = Infinity;
+        let closestIndex = 0;
+
+        stops.forEach((stop, index) => {
+            const diff = Math.abs(stop - offset);
+            if (diff < minDiff) {
+                minDiff = diff;
+                closestIndex = index;
             }
-            window.addEventListener('touchstart', () => hideCursor(), { passive: true });
+        });
+        
+        updateProgressBarUI(closestIndex, cards.length);
+    }
 
-            // Helper to set cursor mode
-            function setCursorMode(mode) {
-                cursor.classList.remove('cursor-mode-drag', 'cursor-mode-scroll', 'cursor-mode-plus');
-                cursor.classList.add(`cursor-mode-${mode}`);
-                // Update label text
-                if (mode === 'drag' || mode === 'scroll') {
-                    cursor.querySelector('.label').textContent = mode;
-                }
+    function update(){
+        measure();
+        // Initial run: align to base offset (first card)
+        if (Math.abs(offset) < 0.001 && Math.abs(baseOffset) > 0.001) {
+            offset = baseOffset;
+        }
+        render();
+    }
+
+    // Snap logic: Find the next/previous *full card* stop position
+    function findNextStop(current){
+        const currentCardIndex = stops.findIndex(s => Math.abs(s - current) < 1);
+        if (currentCardIndex !== -1 && currentCardIndex < stops.length - 1) {
+             return stops[currentCardIndex + 1];
+        }
+        // Find the first card stop position *to the left* of the current position (if not currently snapped)
+        let nextStop = current;
+        for (let i = stops.length - 1; i >= 0; i--) {
+            if (stops[i] < current - 1) { // Stop is further left than current view
+                nextStop = stops[i];
+                break;
             }
+        }
+        return clamp(nextStop);
+    }
 
-
-            /* =======================================================
-            // 2. PROGRESS BAR LOGIC (Independent)
-            // ======================================================= */
-
-            const currentSlideCountEl = document.getElementById('currentSlideCount');
-            const totalSlideCountEl = document.getElementById('totalSlideCount');
-            const progressBarIndicator = document.getElementById('progressBarIndicator');
-
-            function updateProgressBarUI(currentIndex, totalSlides) {
-                if (totalSlides === 0) return;
-                
-                const current = currentIndex + 1;
-                // Calculate progress percentage: the bar should fully fill on the LAST slide
-                const progress = (current / totalSlides) * 100;
-
-                // Update text counts
-                currentSlideCountEl.textContent = "0" + current;
-                totalSlideCountEl.textContent = "0" + totalSlides;
-
-                // Update progress indicator width
-                progressBarIndicator.style.width = `${progress}%`;
+    function findPrevStop(current){
+        const currentCardIndex = stops.findIndex(s => Math.abs(s - current) < 1);
+        if (currentCardIndex > 0) {
+             return stops[currentCardIndex - 1];
+        }
+        // Find the first card stop position *to the right* of the current position (if not currently snapped)
+        let prevStop = current;
+        for (let i = 0; i < stops.length; i++) {
+            if (stops[i] > current + 1) { // Stop is further right than current view
+                prevStop = stops[i];
+                break;
             }
+        }
+        return clamp(prevStop);
+    }
+    
+    function next(){
+        offset = findNextStop(offset);
+        render();
+    }
+    function prev(){
+        offset = findPrevStop(offset);
+        render();
+    }
 
+    // Attach button listeners
+    if (btnNext) btnNext.addEventListener('click', next);
+    if (btnPrev) btnPrev.addEventListener('click', prev);
 
-            /* =======================================================
-            // 3. MAIN SLIDER FUNCTIONALITY (Drag & Snap)
-            // ======================================================= */
+    // Resize & Load handling
+    const roViewport = new ResizeObserver(update);
+    const roTrack    = new ResizeObserver(update);
+    roViewport.observe(viewport);
+    roTrack.observe(track);
+    window.addEventListener('load', update);
+    update();
+    
+    
+    /* --- Cursor and Dragging Logic (From User Input) --- */
 
-            function initSlider(root){
-                const viewport = root.querySelector('.slider-viewport');
-                const track    = root.querySelector('.slider-track');
-                const btnPrev = root.querySelector('.slider-btn.prev');
-                const btnNext = root.querySelector('.slider-btn.next');
-                const cards = Array.from(root.querySelectorAll('.card'));
+    if (isButtonsOnly) {
+        viewport.addEventListener('pointerenter', () => { 
+            showCursor(); 
+            setCursorMode('plus');
+        });
+        viewport.addEventListener('pointerleave', () => { 
+            hideCursor(); 
+            targetScale=1; 
+        });
+        viewport.addEventListener('pointermove', (e) => { 
+            targetX = e.clientX; 
+            targetY = e.clientY; 
+        });
+        return; 
+    }
 
-                if(!viewport || !track) return;
-                
-                const isButtonsOnly = root.classList.contains('buttons-only');
-                const dragEnabled = !isButtonsOnly && root.dataset.drag !== 'false';
+    // ======= Dragging only if enabled =======
+    if (!dragEnabled) return; 
 
-                let offset = 0;           
-                let baseOffset = 0;
-                let maxScroll = 0;
-                let stops = [];
-                let momentumRAF = null;
+    let isDragging = false;
+    let startX = 0, startOffset = 0, lastX = 0, lastTs = 0, velocity = 0;
+    const DRAG_THRESHOLD = 3;
 
-                function measure(){
-                    const viewW = viewport.clientWidth;
+    function stopMomentum(){ if (momentumRAF!=null) cancelAnimationFrame(momentumRAF); momentumRAF=null; }
+    function startMomentum(){
+        stopMomentum();
+        const decay = 0.95;
+        const minVel = 0.05;
+        const frame = () => {
+            velocity *= decay;
+            if (Math.abs(velocity) < minVel) { stopMomentum(); return; }
+            // Apply momentum, clamp, and render
+            offset = clamp(offset + velocity * 16); 
+            render();
 
-                    if (cards.length === 0) {
-                        baseOffset = 0;
-                        maxScroll = 0;
-                        stops = [0];
-                        return;
-                    }
-
-                    const first = cards[0];
-                    const last  = cards[cards.length - 1];
-
-                    const csFirst = getComputedStyle(first);
-                    const csLast  = getComputedStyle(last);
-
-                    // Calculate total track width and offsets
-                    const firstLeftOuter = first.offsetLeft - (parseFloat(csFirst.marginLeft) || 0);
-                    const lastRightOuter = last.offsetLeft + last.offsetWidth + (parseFloat(csLast.marginRight) || 0);
-                    const totalWidth = lastRightOuter - firstLeftOuter;
-
-                    baseOffset = -firstLeftOuter;
-                    maxScroll = Math.max(0, totalWidth - viewW);
-
-                    // Precompute snap positions (aligned to the left edge of each card)
-                    stops = cards.map(card => {
-                        const cs = getComputedStyle(card);
-                        const leftOuter = card.offsetLeft - (parseFloat(cs.marginLeft) || 0);
-                        return clamp(-leftOuter); // Ensure stops are clamped
-                    });
-                    
-                    // Keep offset within bounds
-                    offset = clamp(offset);
-                }
-
-                function clamp(x){
-                    const min = baseOffset - maxScroll;
-                    const max = baseOffset;
-                    return Math.max(min, Math.min(max, x));
-                }
-
-                function render(){
-                    track.style.transform = `translateX(${offset}px)`;
-                    
-                    // Update buttons
-                    if (btnPrev) btnPrev.disabled = (offset >= baseOffset - 0.5);
-                    if (btnNext) btnNext.disabled = (offset <= (baseOffset - maxScroll) + 0.5);
-                    
-                    // Update Progress Bar
-                    let currentIndexForProgress = 0;
-                    // Find the index of the card whose stop position is closest to the current offset
-                    let minDiff = Infinity;
-                    let closestIndex = 0;
-
-                    stops.forEach((stop, index) => {
-                        const diff = Math.abs(stop - offset);
-                        if (diff < minDiff) {
-                            minDiff = diff;
-                            closestIndex = index;
-                        }
-                    });
-                    
-                    updateProgressBarUI(closestIndex, cards.length);
-                }
-
-                function update(){
-                    measure();
-                    // Initial run: align to base offset (first card)
-                    if (Math.abs(offset) < 0.001 && Math.abs(baseOffset) > 0.001) {
-                        offset = baseOffset;
-                    }
-                    render();
-                }
-
-                // Snap logic: Find the next/previous *full card* stop position
-                function findNextStop(current){
-                    const currentCardIndex = stops.findIndex(s => Math.abs(s - current) < 1);
-                    if (currentCardIndex !== -1 && currentCardIndex < stops.length - 1) {
-                         return stops[currentCardIndex + 1];
-                    }
-                    // Find the first card stop position *to the left* of the current position (if not currently snapped)
-                    let nextStop = current;
-                    for (let i = stops.length - 1; i >= 0; i--) {
-                        if (stops[i] < current - 1) { // Stop is further left than current view
-                            nextStop = stops[i];
-                            break;
-                        }
-                    }
-                    return clamp(nextStop);
-                }
-
-                function findPrevStop(current){
-                    const currentCardIndex = stops.findIndex(s => Math.abs(s - current) < 1);
-                    if (currentCardIndex > 0) {
-                         return stops[currentCardIndex - 1];
-                    }
-                    // Find the first card stop position *to the right* of the current position (if not currently snapped)
-                    let prevStop = current;
-                    for (let i = 0; i < stops.length; i++) {
-                        if (stops[i] > current + 1) { // Stop is further right than current view
-                            prevStop = stops[i];
-                            break;
-                        }
-                    }
-                    return clamp(prevStop);
-                }
-                
-                function next(){
-                    offset = findNextStop(offset);
-                    render();
-                }
-                function prev(){
-                    offset = findPrevStop(offset);
-                    render();
-                }
-
-                // Attach button listeners
-                if (btnNext) btnNext.addEventListener('click', next);
-                if (btnPrev) btnPrev.addEventListener('click', prev);
-
-                // Resize & Load handling
-                const roViewport = new ResizeObserver(update);
-                const roTrack    = new ResizeObserver(update);
-                roViewport.observe(viewport);
-                roTrack.observe(track);
-                window.addEventListener('load', update);
-                update();
-                
-                
-                /* --- Cursor and Dragging Logic (From User Input) --- */
-
-                if (isButtonsOnly) {
-                    viewport.addEventListener('pointerenter', () => { 
-                        showCursor(); 
-                        setCursorMode('plus');
-                    });
-                    viewport.addEventListener('pointerleave', () => { 
-                        hideCursor(); 
-                        targetScale=1; 
-                    });
-                    viewport.addEventListener('pointermove', (e) => { 
-                        targetX = e.clientX; 
-                        targetY = e.clientY; 
-                    });
-                    return; 
-                }
-
-                // ======= Dragging only if enabled =======
-                if (!dragEnabled) return; 
-
-                let isDragging = false;
-                let startX = 0, startOffset = 0, lastX = 0, lastTs = 0, velocity = 0;
-                const DRAG_THRESHOLD = 3;
-
-                function stopMomentum(){ if (momentumRAF!=null) cancelAnimationFrame(momentumRAF); momentumRAF=null; }
-                function startMomentum(){
-                    stopMomentum();
-                    const decay = 0.95;
-                    const minVel = 0.05;
-                    const frame = () => {
-                        velocity *= decay;
-                        if (Math.abs(velocity) < minVel) { stopMomentum(); return; }
-                        // Apply momentum, clamp, and render
-                        offset = clamp(offset + velocity * 16); 
-                        render();
-
-                        // Stop momentum if we hit the edge
-                        if (offset === 0 || offset === (baseOffset - maxScroll)) { 
-                            velocity = 0; // stop the velocity abruptly
-                            stopMomentum(); 
-                            return; 
-                        }
-                        momentumRAF = requestAnimationFrame(frame);
-                    };
-                    momentumRAF = requestAnimationFrame(frame);
-                }
-
-                // Cursor bubble (only for draggable sliders)
-                viewport.addEventListener('pointerenter', () => { 
-                    showCursor(); 
-                    setCursorMode('scroll'); 
-                });
-                viewport.addEventListener('pointerleave', () => { hideCursor(); targetScale=1; });
-                viewport.addEventListener('pointermove', (e) => { targetX = e.clientX; targetY = e.clientY; });
-
-                // Pointer events for drag
-                viewport.addEventListener('pointerdown', (e) => {
-                    if (e.button !== 0 && e.pointerType === 'mouse') return;
-                    viewport.setPointerCapture(e.pointerId);
-                    stopMomentum();
-                    isDragging = true;
-                    startX = lastX = e.clientX;
-                    startOffset = offset;
-                    lastTs = performance.now();
-                    velocity = 0;
-                    setCursorMode('drag'); 
-                    targetScale = 0.9;
-                    viewport.classList.add('dragging');
-                    e.preventDefault();
-                });
-
-                viewport.addEventListener('pointermove', (e) => {
-                    if (!isDragging) return;
-                    const now = performance.now();
-                    const dxRaw = e.clientX - startX;
-
-                    const dxBase = Math.abs(dxRaw) < DRAG_THRESHOLD ? 0 : dxRaw;
-                    const dx = dxBase * 1; // Drag dampening
-
-                    offset = clamp(startOffset + dx);
-                    render();
-
-                    const dt = now - lastTs || 16;
-                    velocity = (e.clientX - lastX) / dt;
-                    lastX = e.clientX;
-                    lastTs = now;
-
-                    const speed = Math.min(Math.abs(velocity) * 30, 1);
-                    targetScale = 1 - speed * 0.35;
-                });
-
-                function endDrag(){
-                    if (!isDragging) return;
-                    isDragging = false;
-                    viewport.classList.remove('dragging');
-                    setCursorMode('scroll'); 
-                    targetScale = 1;
-                    
-                    // Start momentum only if it wasn't a static click and we are not at the edge
-                    if (Math.abs(velocity) > 0.01 && offset > (baseOffset - maxScroll) + 1 && offset < baseOffset - 1) { 
-                        startMomentum();
-                    } else {
-                        // Snap back if momentum is negligible
-                        offset = clamp(offset); // Re-clamp just in case
-                        render();
-                    }
-                    velocity = 0; // Reset velocity after drag ends
-                }
-                viewport.addEventListener('pointerup', endDrag);
-                viewport.addEventListener('pointercancel', endDrag);
-                viewport.addEventListener('lostpointercapture', endDrag);
-
-                track.addEventListener('dragstart', (e) => e.preventDefault());
+            // Stop momentum if we hit the edge
+            if (offset === 0 || offset === (baseOffset - maxScroll)) { 
+                velocity = 0; // stop the velocity abruptly
+                stopMomentum(); 
+                return; 
             }
+            momentumRAF = requestAnimationFrame(frame);
+        };
+        momentumRAF = requestAnimationFrame(frame);
+    }
 
-            // Initialize all sliders
-            document.querySelectorAll('.slider').forEach(initSlider);
+    // Cursor bubble (only for draggable sliders)
+    viewport.addEventListener('pointerenter', () => { 
+        showCursor(); 
+        setCursorMode('scroll'); 
+    });
+    viewport.addEventListener('pointerleave', () => { hideCursor(); targetScale=1; });
+    viewport.addEventListener('pointermove', (e) => { targetX = e.clientX; targetY = e.clientY; });
 
+    // Pointer events for drag
+    viewport.addEventListener('pointerdown', (e) => {
+        // 🆕 Allow links to be clickable — don't start drag if pointer down on an <a>
+        const anchor = e.target.closest('a');
+        if (anchor) {
+            return; // let the browser handle the link normally
+        }
+
+        if (e.button !== 0 && e.pointerType === 'mouse') return;
+        viewport.setPointerCapture(e.pointerId);
+        stopMomentum();
+        isDragging = true;
+        startX = lastX = e.clientX;
+        startOffset = offset;
+        lastTs = performance.now();
+        velocity = 0;
+        setCursorMode('drag'); 
+        targetScale = 0.9;
+        viewport.classList.add('dragging');
+        e.preventDefault();
+    });
+
+    viewport.addEventListener('pointermove', (e) => {
+        if (!isDragging) return;
+        const now = performance.now();
+        const dxRaw = e.clientX - startX;
+
+        const dxBase = Math.abs(dxRaw) < DRAG_THRESHOLD ? 0 : dxRaw;
+        const dx = dxBase * 1; // Drag dampening
+
+        offset = clamp(startOffset + dx);
+        render();
+
+        const dt = now - lastTs || 16;
+        velocity = (e.clientX - lastX) / dt;
+        lastX = e.clientX;
+        lastTs = now;
+
+        const speed = Math.min(Math.abs(velocity) * 30, 1);
+        targetScale = 1 - speed * 0.35;
+    });
+
+    function endDrag(){
+        if (!isDragging) return;
+        isDragging = false;
+        viewport.classList.remove('dragging');
+        setCursorMode('scroll'); 
+        targetScale = 1;
+        
+        // Start momentum only if it wasn't a static click and we are not at the edge
+        if (Math.abs(velocity) > 0.01 && offset > (baseOffset - maxScroll) + 1 && offset < baseOffset - 1) { 
+            startMomentum();
+        } else {
+            // Snap back if momentum is negligible
+            offset = clamp(offset); // Re-clamp just in case
+            render();
+        }
+        velocity = 0; // Reset velocity after drag ends
+    }
+    viewport.addEventListener('pointerup', endDrag);
+    viewport.addEventListener('pointercancel', endDrag);
+    viewport.addEventListener('lostpointercapture', endDrag);
+
+    track.addEventListener('dragstart', (e) => e.preventDefault());
+}
+
+// Initialize all sliders
+document.querySelectorAll('.slider').forEach(initSlider);
 
 
 
@@ -707,7 +710,13 @@ function navigate(direction) {
 // 1. Article click handler (to open the gallery)
 document.querySelectorAll('.opens-gallery .card').forEach((card, index) => {
     card.style.cursor = 'pointer'; 
-    card.addEventListener('click', () => {
+    card.addEventListener('click', (e) => {
+        // 🆕 Allow links inside cards to be clickable
+        const anchor = e.target.closest('a');
+        if (anchor) {
+            return; // don't open gallery if a link was clicked
+        }
+
         // Ensure slides are built before opening
         if (totalSlides === 0) buildGallerySlides(); 
         openGallery(index);
@@ -736,6 +745,7 @@ document.addEventListener('keydown', (e) => {
 
 // Initial Setup: Build the slides when the page loads
 window.addEventListener('load', buildGallerySlides);
+
 
 
 
