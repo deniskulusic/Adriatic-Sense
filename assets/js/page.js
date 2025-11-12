@@ -81,7 +81,10 @@
     requestAnimationFrame(raf);
   }
   requestAnimationFrame(raf);
-
+  // 🩵 IMPORTANT: whenever DOM height changes, call this:
+  function refreshLenis() {
+    lenis.resize()
+  }
   /* ======================================================
      HEADER + MENU LOGIC
      ====================================================== */
@@ -658,7 +661,7 @@ for(i=0;i<acordation.length;i++){
     acordation[i].addEventListener('click',function(){
       var faqa=this.classList.contains("active");
         var elems = document.querySelectorAll(".faq.active");
-        
+        setTimeout(() => lenis.resize(), 550);
         
         
 [].forEach.call(elems, function(el) {
@@ -676,6 +679,7 @@ if(faqa) {
 document.querySelector(".info-more .click-underline").addEventListener('click',function(){
    document.querySelector(".info-under").classList.toggle("info-active")  ;
     this.classList.toggle("info-active")  ;
+    setTimeout(() => lenis.resize(), 500);
 })
 
 

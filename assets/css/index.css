@@ -62,7 +62,6 @@ header video, header img {
 }
 
 .header-text {
-  padding-top: 2vw;
   transition-duration: 1s;
   transition-delay: 0.7s;
   transition-property: opacity, padding-top, height;
@@ -188,7 +187,9 @@ header video, header img {
   align-items: center;
   grid-column: span 6;
   align-items: start;
-  margin-bottom: 60%;
+}
+.header-2 .maxw {
+  margin-bottom: 30vh;
 }
 .header-2 .header-text h1 {
   text-align: start;
@@ -237,6 +238,12 @@ header video, header img {
   flex-direction: column;
   min-width: 300px;
   padding: 16px 26px;
+  overflow: clip;
+  height: 0;
+  opacity: 0;
+  transition-duration: 1s;
+  transition-delay: 0.7s;
+  transition-property: opacity, padding-top, height;
 }
 .header-bottom-element h4 {
   color: white;
@@ -246,6 +253,11 @@ header video, header img {
 .header-bottom-element p {
   color: white;
   font-size: 18px;
+}
+
+.header-2 .header-loaded .header-bottom-element {
+  height: 100%;
+  opacity: 100%;
 }
 
 /*Section 1*/
@@ -326,6 +338,10 @@ header video, header img {
 
 .section-1 {
   z-index: 1;
+}
+.section-1 h2 {
+  grid-column: span 12;
+  text-align: start;
 }
 .section-1 h2 {
   grid-column: span 12;
@@ -782,6 +798,11 @@ header video, header img {
 .article-text p {
   margin-bottom: 24px;
   color: white;
+}
+
+/*Section 1 second*/
+.section-1-second .slider-track article:first-of-type {
+  margin-left: 24px;
 }
 
 /*Section 1 Destinations*/
@@ -1728,6 +1749,10 @@ header video, header img {
   .section-1-destionations .slider-btn div svg {
     color: white;
   }
+  /*Section 1 second*/
+  .section-1-second .slider-track article:first-of-type {
+    margin-left: 50px;
+  }
 }
 /*Review section*/
 /* === Review slider styles (review_*) === */
@@ -1751,7 +1776,6 @@ header video, header img {
   align-items: stretch;
   gap: 16px;
   will-change: transform;
-  cursor: grab;
 }
 
 .review_card {
@@ -1854,7 +1878,6 @@ header video, header img {
 
 .review_btn[disabled] {
   opacity: 0.5;
-  cursor: not-allowed;
 }
 
 .sr-only {
@@ -1917,7 +1940,6 @@ header video, header img {
 
 .review_btn:disabled {
   opacity: 0.5;
-  cursor: not-allowed;
   transform: none;
 }
 
@@ -1983,6 +2005,7 @@ header video, header img {
   max-height: 0;
   overflow: hidden;
   transition: 0.5s;
+  font-size: 17px;
 }
 
 .arrow-a::before,

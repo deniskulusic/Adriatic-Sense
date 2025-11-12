@@ -385,7 +385,12 @@
   font-display: swap;
 }
 
-
+* {
+  box-sizing: border-box;
+  margin: 0;
+  font-family: "Molde Expanded", sans-serif;
+  font-weight: 400;
+}
 $Work:'TT Norms Pro Expanded', sans-serif;
 $Richie:"Molde Expanded", sans-serif;
 $Satoshi:"Molde Expanded", sans-serif;
@@ -796,6 +801,34 @@ letter-spacing: 0.03em;
             
         }
     }
+    .main-button{
+padding: 14px 34px;
+  font-size: 20px;
+border: 1px solid white;
+color: white;
+transition: .3s;
+background-color: transparent;
+width: fit-content;
+text-transform: uppercase;
+}
+.main-button:hover{
+background-color: rgba(255, 255, 255, 0.37);
+color: white;
+}
+
+.button-blue{
+  background-color: #132b51;
+  border:0px;
+  a{
+    color: white;
+    text-decoration: none;
+    font-size: 18px;
+  }
+}
+.button-blue:hover{
+  background-color: #0d1929;
+  color: white;
+}
     footer{
     z-index: 9;
         height: auto;
