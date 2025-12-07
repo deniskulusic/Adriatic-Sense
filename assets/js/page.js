@@ -142,6 +142,114 @@
   const SCALE = 0.1; // Adjust for sensitivity
   let WindowHeight=window.innerHeight;
 
+
+    /* ======================================================
+       ANIMATING ELEMENTS LOGIC INITIALIZATION
+    ====================================================== */
+    // 1. CONFIG: Add all parallax groups here
+    const parallaxGroups = [
+        {
+            wrapper: ".s-a-a-7-img",
+            elements: ".s-a-a-7-img img",
+            factors: [0.1],
+            mode: "scaleTranslate", // NEW animation
+            initialScale: 1.2,
+            translateRange: 250
+        },
+        {
+            wrapper: ".s-a-s-2",
+            elements: ".s-a-s-2-left , .s-a-s-2-right-element ",
+            factors: [-0.03 , -0.08 , 0.14 , -0.03 ],
+            mode: "parallax"
+        },
+
+    ];
+
+
+    /* ======================================================
+       RESPONSIVE SCALING
+    ====================================================== */
+    function getResponsiveScale() {
+        const maxW = 1920;
+        const minW = 850;
+
+        if (window.innerWidth >= maxW) return 1;
+        if (window.innerWidth <= minW) return 0.5;
+
+        const pct = (window.innerWidth - minW) / (maxW - minW);
+        return 0.5 + (pct * 0.5);
+    }
+
+    let responsiveScale = getResponsiveScale();
+    window.addEventListener("resize", () => {
+        responsiveScale = getResponsiveScale();
+    });
+
+
+    /* ======================================================
+       SETUP
+    ====================================================== */
+    parallaxGroups.forEach(g => {
+        g.wrapperEl = document.querySelector(g.wrapper);
+        g.elementsEl = document.querySelectorAll(g.elements);
+        g.offsetTop = window.pageYOffset + g.wrapperEl.getBoundingClientRect().top;
+    });
+
+    window.addEventListener("resize", () => {
+        parallaxGroups.forEach(g => {
+            g.offsetTop = window.pageYOffset + g.wrapperEl.getBoundingClientRect().top;
+        });
+    });
+
+
+    /* ======================================================
+       TRANSFORM MERGING
+    ====================================================== */
+    function mergeTransform(el, newTranslateY) {
+        let existing = el.style.transform;
+
+        // If no inline transform, read “transform” from CSS rules (NOT the computed matrix)
+        if (!existing) {
+            existing = el.getAttribute("data-original-transform");
+            if (!existing) {
+                // Extract raw CSS transform using computed style *but keep the string before conversion*
+                const style = el.getAttribute("style") || "";
+                const cssTransform = style.match(/transform:\s*([^;]+)/);
+
+                if (cssTransform) {
+                    existing = cssTransform[1].trim();
+                } else {
+                    // LAST RESORT: use computed transform ONLY if not "none"
+                    const computed = window.getComputedStyle(el).transform;
+                    existing = computed === "none" ? "" : computed;
+                }
+            }
+        }
+
+        // Remove old translateY()
+        existing = (existing || "").replace(/translateY\([^)]*\)/g, "").trim();
+
+        // Final combine
+        if (!existing || existing === "none") {
+            return `translateY(${newTranslateY}px)`;
+        }
+
+        return `${existing} translateY(${newTranslateY}px)`.trim();
+    }
+
+
+    /* ======================================================
+       EXTRA: CLAMP FUNCTION
+    ====================================================== */
+    function clamp2(v, min, max) {
+        return Math.max(min, Math.min(max, v));
+    }
+
+
+
+
+
+
   lenis.on('scroll', ({ scroll }) => {
     const elements = document.querySelectorAll('[data-lenis-speed]');
     elements.forEach((el) => {
@@ -160,6 +268,72 @@
     document.querySelector(".inqury").classList.remove('active-inq'); // remove class when above halfway
     document.querySelector(".menu-full").classList.remove('active-inq'); // add class when past halfway
   }
+  
+        /* ======================================================
+            ANIMATING ELEMENTS LOGIC TRIGGER
+        ====================================================== */
+        const vh = window.innerHeight;
+
+        parallaxGroups.forEach(g => {
+            const rect = g.wrapperEl.getBoundingClientRect();
+
+            // Visibility check
+            if (rect.top - 1.5 * WindowHeight < 0 &&
+                rect.top + g.wrapperEl.clientHeight + 0.5 * WindowHeight > 0) {
+
+                g.elementsEl.forEach((el, i) => {
+
+                    const factor = g.factors[i];
+                    if (factor === undefined) return;
+
+                    /* -----------------------------------------
+                        MODE 1: OLD PARALLAX (translate only)
+                    ----------------------------------------- */
+                    if (g.mode === "parallax") {
+                        const val = factor * responsiveScale * (g.offsetTop - scroll);
+                        el.style.transform = mergeTransform(el, val);
+                        return;
+                    }
+
+                    /* -----------------------------------------
+                        MODE 2: NEW SCALE + TRANSLATE ANIMATION
+                    ----------------------------------------- */
+                    if (g.mode === "scaleTranslate") {
+
+                        const it = {
+                            img: el,
+                            top: g.offsetTop,
+                            height: g.wrapperEl.clientHeight,
+                            scale: g.initialScale || 1.2,
+                            extra: g.translateRange || 300
+                        };
+
+                        const distanceFromTop = it.top - scroll;
+                        const totalDistance = vh + it.height;
+                        const distanceCovered = vh - distanceFromTop;
+
+                        const percent = clamp2(distanceCovered / totalDistance, 0, 1);
+
+                        // Scale calculation remains absolute (visual fit)
+                        const currentScale =
+                            it.scale - ((it.scale - 1) * percent);
+
+                        // --- MODIFIED LOGIC HERE ---
+                        // We apply responsiveScale to the translation range (it.extra)
+                        const scaledExtra = it.extra * responsiveScale;
+
+                        const translateY =
+                            -(scaledExtra / 2) + (scaledExtra * percent);
+
+                        it.img.style.transform =
+                            `translate3d(0, ${translateY}px, 0) scale(${currentScale})`;
+
+                        return;
+                    }
+
+                });
+            }
+        });
   });
 
 
@@ -682,5 +856,135 @@ document.querySelector(".info-more .click-underline").addEventListener('click',f
     setTimeout(() => lenis.resize(), 500);
 })
 
+
+
+
+  
+    const slides = document.querySelectorAll('.slide');
+    const prevBtn2 = document.getElementById('prevBtn');
+    const nextBtn2 = document.getElementById('nextBtn');
+    const paginationContainer = document.getElementById('pagination');
+    const touchArea = document.getElementById('touchArea');
+
+    let currentIndex2 = 0;
+    let isAnimating = false;
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    // 1. Initialization
+    slides.forEach((slide, index) => {
+        if (index === 0) {
+            slide.style.transform = 'translateX(0%)';
+        } else {
+            slide.style.transform = 'translateX(100%)';
+        }
+    });
+
+    // TEXT PAGINATION
+const textPagination = document.querySelectorAll('#textPagination h4');
+
+// Initialize first as active
+textPagination[0].classList.add('active');
+
+// Replace dot update with text update:
+function updateTextPagination(newIndex) {
+    textPagination.forEach(item => item.classList.remove('active'));
+    textPagination[newIndex].classList.add('active');
+}
+
+// Add click listeners
+textPagination.forEach((item) => {
+    item.addEventListener('click', () => {
+        const index = Number(item.dataset.index);
+        if (index !== currentIndex2 && !isAnimating) {
+            const direction = index > currentIndex2 ? 'next' : 'prev';
+            handleSlideChange(direction, index);
+        }
+    });
+});
+
+    // 3. Main Slide Logic
+    function handleSlideChange(direction, specificIndex = null) {
+        if (isAnimating) return;
+        isAnimating = true;
+
+        const outgoing = slides[currentIndex2];
+        let incomingIndex;
+
+        if (specificIndex !== null) {
+            incomingIndex = specificIndex;
+        } else {
+            if (direction === 'next') {
+                incomingIndex = (currentIndex2 + 1) % slides.length;
+            } else {
+                incomingIndex = (currentIndex2 - 1 + slides.length) % slides.length;
+            }
+        }
+
+        const incoming = slides[incomingIndex];
+
+        // --- A. Setup Incoming Slide ---
+        incoming.style.transition = 'none'; // Disable transition for instant placement
+
+        if (direction === 'next') {
+            incoming.style.transform = 'translateX(100%)';
+        } else {
+            incoming.style.transform = 'translateX(-100%)';
+        }
+
+        // Force reflow
+        void incoming.offsetWidth;
+
+        // --- B. Execute Animation ---
+        incoming.style.transition = 'transform 800ms cubic-bezier(.215, .61, .355, 1)';
+        outgoing.style.transition = 'transform 800ms cubic-bezier(.215, .61, .355, 1)';
+
+        incoming.style.transform = 'translateX(0%)';
+
+        if (direction === 'next') {
+            outgoing.style.transform = 'translateX(-100%)';
+        } else {
+            outgoing.style.transform = 'translateX(100%)';
+        }
+
+        // Update Dots
+        updateTextPagination(incomingIndex);
+
+        // --- C. Cleanup ---
+        setTimeout(() => {
+            currentIndex2 = incomingIndex;
+            isAnimating = false;
+        }, 600);
+    }
+
+    // Event Listeners
+    nextBtn2.addEventListener('click', () => handleSlideChange('next'));
+    prevBtn2.addEventListener('click', () => handleSlideChange('prev'));
+
+    // Keyboard
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight') handleSlideChange('next');
+        if (e.key === 'ArrowLeft') handleSlideChange('prev');
+    });
+
+    // Touch
+    touchArea.addEventListener('touchstart', (e) => {
+        touchStartX = e.changedTouches[0].screenX;
+    });
+
+    touchArea.addEventListener('touchend', (e) => {
+        touchEndX = e.changedTouches[0].screenX;
+        handleSwipe();
+    });
+
+    function handleSwipe() {
+        const threshold = 50;
+        if (touchEndX < touchStartX - threshold) {
+            handleSlideChange('next');
+        }
+        if (touchEndX > touchStartX + threshold) {
+            handleSlideChange('prev');
+        }
+    }
 
 })();

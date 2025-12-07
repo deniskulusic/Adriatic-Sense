@@ -449,12 +449,22 @@ h1 {
   vertical-align: middle;
 }
 
+.mega-title {
+  font-family: "Molde Expanded", sans-serif;
+  font-weight: 600;
+  font-size: 70px;
+  line-height: 70px;
+  letter-spacing: 2.13px;
+  vertical-align: middle;
+}
+
 h2 {
   font-family: "Molde Expanded", sans-serif;
   font-weight: 500;
   font-size: 44px;
   line-height: 44px;
   vertical-align: middle;
+  text-transform: uppercase;
 }
 
 h3 {
@@ -464,7 +474,7 @@ h3 {
   font-size: 32px;
   leading-trim: NONE;
   line-height: 161%;
-  letter-spacing: -2%;
+  letter-spacing: 0%;
   text-align: center;
 }
 
@@ -472,7 +482,7 @@ h4 {
   font-family: "Molde Expanded", sans-serif;
   font-size: 22px;
   font-weight: 300;
-  letter-spacing: 1px;
+  letter-spacing: 0%;
   line-height: 1.4;
   vertical-align: middle;
 }
@@ -481,9 +491,9 @@ h5 {
   font-family: "Molde Expanded", sans-serif;
   font-weight: 600;
   font-style: Black;
-  font-size: 16px;
+  font-size: 18px;
   line-height: 164%;
-  letter-spacing: 20.5%;
+  letter-spacing: 0px;
   text-align: center;
 }
 
@@ -498,7 +508,7 @@ h6 {
 p {
   font-family: "TT Norms Pro Expanded", sans-serif;
   font-weight: 300;
-  font-size: 16px;
+  font-size: 17px;
   line-height: 24px;
   letter-spacing: 0%;
 }
@@ -531,8 +541,8 @@ p {
 }
 
 .main-button {
-  padding: 14px 34px;
-  font-size: 20px;
+  padding: 14px 42px;
+  font-size: 18px;
   border: 1px solid white;
   color: white;
   transition: 0.3s;
@@ -713,7 +723,7 @@ p {
   background-color: #132b51;
   color: white;
   padding: 14px 34px;
-  font-size: 18px;
+  font-size: 15px;
 }
 
 .button-header:hover {
@@ -786,7 +796,7 @@ p {
   /* identical to box height, or 13px */
   display: flex;
   align-items: center;
-  letter-spacing: 0.21em;
+  letter-spacing: 2%;
   transition: 0.5s;
 }
 
@@ -968,7 +978,7 @@ footer h3 {
   padding: 16px 20px;
   padding-right: 60px;
   border: 1px solid white;
-  grid-column: span 3;
+  grid-column: span 5;
   align-items: center;
   position: relative;
 }
@@ -1126,7 +1136,7 @@ footer h3 {
 }
 
 .footer-phone {
-  font-size: 30px;
+  font-size: 24px;
   font-weight: 500;
   color: white;
 }
@@ -1211,4 +1221,245 @@ footer h3 {
   transform-origin: center;
   transform: translate3d(0, var(--y, 0px), 0) scale(var(--s, 1));
   will-change: transform;
+}
+
+@media screen and (max-width: 1500px) {
+  .navbar {
+    width: 100%;
+    height: 130px;
+  }
+  .menu-filled .navbar, .inqury {
+    height: 90px;
+  }
+}
+@media screen and (max-width: 1224px) {
+  /* --- 1. Typography Scaling (Tablet) --- */
+  h1 {
+    font-size: 48px;
+    line-height: 56px;
+  }
+  .mega-title {
+    font-size: 48px;
+    line-height: 56px;
+  }
+  h2 {
+    font-size: 34px;
+    line-height: 40px;
+  }
+  h3 {
+    font-size: 28px;
+    line-height: 1.4;
+  }
+  h4 {
+    font-size: 20px;
+  }
+  h5 {
+    font-size: 16px;
+  }
+  h6 {
+    font-size: 30px;
+    /* Scaled down similarly to h2 */
+    line-height: 36px;
+  }
+  p {
+    font-size: 16px;
+  }
+  .main-button {
+    font-size: 18px;
+  }
+  .right-side {
+    display: none;
+  }
+  section {
+    padding-top: 100px;
+    /* Reduce from 140px */
+  }
+  .container {
+    padding: 0 40px;
+    /* Reduce from 50px */
+  }
+  .first-section {
+    padding-top: 70px !important;
+  }
+  .footer-element {
+    grid-column: span 4;
+    padding: 40px 0;
+  }
+  .footer-element-last {
+    grid-column: span 5;
+    padding-bottom: 80px;
+  }
+  .footer-text-element {
+    grid-column: 1/span 4;
+  }
+  .footer-logo-element {
+    grid-column: span 5;
+    padding-top: 80px;
+  }
+  .sign-up {
+    grid-column: span 6;
+  }
+  footer h3 {
+    grid-column: span 6;
+  }
+  footer {
+    background-color: #132b51;
+    padding: 60px 0;
+    margin-top: 120px;
+  }
+}
+@media screen and (max-width: 968px) {
+  /* --- 1. Typography Scaling (Mobile) --- */
+  h1 {
+    font-size: 36px;
+    line-height: 1.15;
+    letter-spacing: 1px;
+    /* Reduce spacing for mobile fit */
+  }
+  .mega-title {
+    font-size: 36px;
+    line-height: 1.15;
+    letter-spacing: 1px;
+    /* Reduce spacing for mobile fit */
+  }
+  h2 {
+    font-size: 28px;
+    line-height: 1.2;
+  }
+  h3 {
+    font-size: 24px;
+    line-height: 1.3;
+    text-align: left;
+    /* Often reads better left-aligned on mobile */
+  }
+  h4 {
+    font-size: 18px;
+    line-height: 1.4;
+  }
+  h5 {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  h6 {
+    font-size: 24px;
+    line-height: 1.2;
+  }
+  p {
+    font-size: 15px;
+    /* Keep legible */
+    line-height: 1.6;
+  }
+  .main-button {
+    font-size: 17px;
+    padding: 12px 28px;
+  }
+  .click-underline {
+    font-size: 15px;
+    /* Slightly smaller action links */
+  }
+  /* --- 2. Global Layout Resets --- */
+  .grid {
+    -moz-column-gap: 24px;
+         column-gap: 24px;
+    /* Space between stacked elements */
+  }
+  .container {
+    padding: 0 24px;
+    /* Standard mobile padding */
+  }
+  section {
+    padding-top: 70px;
+    /* Tighter spacing for mobile */
+  }
+  .first-section {
+    padding-top: 50px !important;
+  }
+  .footer-element-last {
+    grid-column: span 6;
+  }
+  .navbar {
+    height: 100px;
+  }
+  .menu-filled .navbar, .inqury {
+    height: 75px;
+  }
+  .logo {
+    height: 100%;
+    width: 140px;
+  }
+  .logo img {
+    padding: 35px 15px;
+  }
+  .menu-filled .logo img {
+    padding: 20px 0px;
+    -o-object-position: left;
+       object-position: left;
+  }
+  footer {
+    background-color: #132b51;
+    padding: 60px 0;
+    margin-top: 110px;
+  }
+}
+@media screen and (max-width: 768px) {
+  footer h3 {
+    grid-column: span 12;
+  }
+  .sign-up {
+    grid-column: span 12;
+    margin-top: 24px;
+  }
+  .footer-element {
+    grid-column: span 12;
+    padding: 25px 0;
+  }
+  .footer-text-element {
+    grid-column: span 12;
+  }
+  .footer-logo-element {
+    grid-column: span 12;
+    padding-top: 60px;
+    padding-bottom: 40px;
+  }
+  .footer-element-last {
+    gap: 14px;
+  }
+  .footer-title {
+    font-size: 19px;
+    font-weight: 500;
+    margin-bottom: 24px;
+    color: white;
+  }
+  .footer-text {
+    font-size: 16px;
+    line-height: 22.5px;
+    margin-bottom: 19px;
+  }
+  .footer-logo {
+    width: 75%;
+  }
+  .footer-logo-element p {
+    color: rgb(142, 159, 172);
+    margin-top: 22px;
+    margin-bottom: 22px;
+  }
+  .footer-bottom {
+    grid-column: span 12;
+    height: -moz-fit-content;
+    height: fit-content;
+    gap: 12px;
+    display: flex;
+    align-items: start;
+    flex-direction: column;
+    padding-top: 60px;
+  }
+  .footer-last {
+    font-size: 17px;
+  }
+  .footer-phone {
+    font-size: 20px;
+  }
+  footer {
+    margin-top: 90px;
+  }
 }/*# sourceMappingURL=general.css.map */

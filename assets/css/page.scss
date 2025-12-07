@@ -89,26 +89,7 @@ line-height: 1.8;
 .header-text .click-underline::before {
   background-color: white;
 }
-.discovery {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: 50px;
-  transition: 0.5s;
-  z-index: 3;
-  font-weight: 400;
-  letter-spacing: 2.6px;
-  line-height: 19.5px;
-  color: #FFFFFF;
-  opacity: 0.75;
-  font-size: 13px;
-  text-transform: uppercase;
-  cursor: pointer;
-}
 
-.discovery:hover {
-  letter-spacing: 5px;
-}
 .box span {
 	width: 20px;
 	height: 20px;
