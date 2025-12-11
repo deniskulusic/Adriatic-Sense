@@ -184,6 +184,33 @@ requestAnimationFrame(raf);
   const header = document.querySelector('header');
   const menu = document.querySelector('.menu-full');
   const growSection = document.querySelectorAll('.grow-section');
+   let PreFooter = document.querySelector('.image-group');
+  let PreFooterElements = document.querySelectorAll('.image-group div');
+  let PreFooterFromTop = window.pageYOffset + PreFooter.getBoundingClientRect().top;
+   let translation = 0;
+  // 2. Define the unique speed for each element (based on your snippet)
+  const factors = [0.22, 0.15, 0.08, 0.15, 0.22];
+  // 1. Define your boundaries
+  const maxW = 1920;
+  const minW = 850;
+  let responsiveScale = 1; // Default to 1x
+
+  // 2. Calculate the scale based on current width
+  if (window.innerWidth >= maxW) {
+    responsiveScale = 1;
+  } else if (window.innerWidth <= minW) {
+    responsiveScale = 0.5;
+  } else {
+    // Calculate percentage of width between 850 and 1920
+    const percentage = (window.innerWidth - minW) / (maxW - minW);
+    // Map that percentage to the 0.5 - 1.0 range
+    responsiveScale = 0.5 + (percentage * 0.5);
+  }
+
+
+  window.addEventListener("resize", function () {
+    PreFooterFromTop = window.pageYOffset + PreFooter.getBoundingClientRect().top;
+  });
   if (header) header.classList.add('header-loaded');
 
   // Parallax via [data-lenis-speed]
@@ -233,6 +260,23 @@ requestAnimationFrame(raf);
   
     
     });
+
+    // 3. Check Visibility
+    if (PreFooter.getBoundingClientRect().top - 1.5 * WindowHeight < 0 &&
+      PreFooter.getBoundingClientRect().top + PreFooter.clientHeight + 0.5 * WindowHeight > 0) {
+
+      // Loop through the elements
+      // Assuming PreFooterElements is a NodeList or Array
+      for (let i = 0; i < PreFooterElements.length; i++) {
+        if (factors[i] !== undefined) {
+          // Calculate distance
+          let val = factors[i] * responsiveScale * (PreFooterFromTop - scroll);
+
+          // Apply style directly (more performant than .animate)
+          PreFooterElements[i].style.transform = "translateY(" + val + "px)";
+        }
+      }
+    }
   });
 
 

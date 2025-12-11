@@ -854,7 +854,7 @@ transition: .5s;
       top: -100px;
       transition-delay: 0s;
       .navbar{
-        justify-content: end;
+        justify-content: space-between;
       }
     }
     .active-inq.inqury{
@@ -1448,7 +1448,7 @@ section {
 }
 footer {
   background-color: #132b51;
-  padding: 60px 0;
+  padding: 50px 0;
   margin-top: 110px;
 }
 }
@@ -1512,6 +1512,6 @@ footer {
   font-size: 20px;
 }
 footer {
-  margin-top: 90px;
+  margin-top: 80px;
 }
 }

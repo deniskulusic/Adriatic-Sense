@@ -158,10 +158,17 @@
         },
         {
             wrapper: ".s-a-s-2",
-            elements: ".s-a-s-2-left , .s-a-s-2-right-element ",
-            factors: [-0.03 , -0.08 , 0.14 , -0.03 ],
+            elements: ".s-a-s-2-left",
+            factors: [-0.03  ],
             mode: "parallax"
         },
+        {
+            wrapper: ".s-a-s-2-right",
+            elements: ".s-a-s-2-right-element ",
+            factors: [-0.08 , 0.14 , -0.03 ],
+            mode: "parallax"
+        },
+        
 
     ];
 
