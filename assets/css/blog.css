@@ -70,6 +70,11 @@ Blog Section
   opacity: 0.6;
 }
 
+.blog-page h1 {
+  grid-column: span 12;
+  text-align: center;
+}
+
 .blog-page-wrapper {
   margin-top: 80px;
   margin-bottom: 40px;

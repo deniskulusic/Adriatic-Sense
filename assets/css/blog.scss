@@ -71,6 +71,10 @@ Blog Section
   font-size: 16px;
   opacity: 0.6;
 }
+.blog-page h1 {
+  grid-column: span 12;
+  text-align: center;
+}
 
 .blog-page-wrapper {
   margin-top: 80px;
