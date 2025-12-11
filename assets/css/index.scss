@@ -67,6 +67,9 @@ header img {
 .header-loaded img {
   height: 100%;
 }
+.header-loaded video {
+  height: 100%;
+}
 
 .privacy .header-loaded picture {
   height: 100%;
@@ -1548,6 +1551,11 @@ select.search-input {
 
 
 /*Section 3*/
+.section-3{
+  .grid{
+    row-gap: 60px;
+  }
+}
 .section-3-element {
   position: relative;
   grid-column: span 6;
@@ -1559,7 +1567,7 @@ select.search-input {
   background-color: #132b51;
 
   span {
-    font-size: 80px;
+    font-size: 64px;
     position: absolute;
     left: 24px;
     bottom: 24px;
