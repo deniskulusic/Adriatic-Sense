@@ -168,6 +168,12 @@
             factors: [-0.08 , 0.14 , -0.03 ],
             mode: "parallax"
         },
+        {
+            wrapper: ".s-a-a-1",
+            elements: ".s-a-a-1-right , .s-a-a-1-left-wrapper",
+            factors: [0.07, 0.2 ],
+            mode: "parallax"
+        },
         
 
     ];
@@ -994,4 +1000,75 @@ textPagination.forEach((item) => {
         }
     }
 
+
+    
+    // Select all tab buttons and content areas
+    const tabs = document.querySelectorAll('.s-a-a-6-top-element');
+    const contents = document.querySelectorAll('.s-a-a-6-bottom');
+
+    // Loop through each tab to add a click event listener
+    tabs.forEach((tab, index) => {
+        tab.addEventListener('click', () => {
+
+            // 1. Deactivate all tabs
+            tabs.forEach(t => t.classList.remove('s-a-a-6-top-element-active'));
+
+            // 2. Activate the clicked tab
+            tab.classList.add('s-a-a-6-top-element-active');
+
+            // 3. Hide all content areas
+            contents.forEach(c => c.classList.remove('s-a-a-6-bottom-active'));
+
+            // 4. Show the content area that matches the index of the clicked tab
+            if (contents[index]) {
+                contents[index].classList.add('s-a-a-6-bottom-active');
+            }
+            lenis.resize();
+        });
+    });
+      const menuBtn = document.querySelector(".han-menu-full");
+const menuFULL = document.querySelector(".menu-full");
+
+// Define mobile breakpoint
+const isMobile = window.innerWidth < 768;
+
+if (menuBtn && menuFULL) {
+    // Variable to store scroll position for native fallback
+    let nativeScrollPos = 0;
+
+    menuBtn.addEventListener("click", () => {
+      const isActive = menuFULL.classList.toggle("menu-active");
+
+      // CHECK 1: Is Lenis active? (Use this for both Desktop AND Mobile if available)
+      // We removed the "!isMobile" check because lenis.stop() is cleaner than CSS hacks on mobile
+      if (typeof lenis !== "undefined" && lenis) {
+        if (isActive) {
+          lenis.stop();
+        } else {
+          lenis.start();
+        }
+        console.log("Lenis toggle active");
+      } 
+      
+      // CHECK 2: Fallback (If Lenis is disabled due to Reduced Motion or error)
+      else {
+        if (isActive) {
+          // LOCK: Record position -> Fix body -> Offset top
+          nativeScrollPos = window.scrollY || window.pageYOffset;
+          document.body.style.position = 'fixed';
+          document.body.style.top = `-${nativeScrollPos}px`;
+          document.body.style.width = '100%';
+          document.body.style.overflow = 'hidden';
+        } else {
+          // UNLOCK: Remove styles -> Restore scroll position
+          document.body.style.position = '';
+          document.body.style.top = '';
+          document.body.style.width = '';
+          document.body.style.overflow = '';
+          window.scrollTo(0, nativeScrollPos);
+        }
+        console.log("Native scroll toggle active");
+      }
+    });
+  }
 })();
