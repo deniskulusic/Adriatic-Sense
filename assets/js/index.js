@@ -993,6 +993,7 @@ if (menuBtn && menuFULL) {
     menuBtn.addEventListener("click", () => {
       const isActive = menuFULL.classList.toggle("menu-active");
 
+
       // CHECK 1: Is Lenis active? (Use this for both Desktop AND Mobile if available)
       // We removed the "!isMobile" check because lenis.stop() is cleaner than CSS hacks on mobile
       if (typeof lenis !== "undefined" && lenis) {

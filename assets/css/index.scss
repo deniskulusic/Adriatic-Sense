@@ -110,14 +110,14 @@ header img {
   color: white;
 }
 
-.header-text h6 {
+.header-text .hero-subheadline {
   padding-bottom: 45px;
   margin-bottom: 45px;
   color: white;
   position: relative;
 }
 
-.header-text h6::after {
+.header-text .hero-subheadline::after {
   content: '';
   position: absolute;
   width: 100px;
@@ -128,7 +128,7 @@ header img {
   background-color: #bf9b30;
 }
 
-.header-text p {
+.header-text .header-text-p-p {
   opacity: .8;
   color: white;
   opacity: 1;
@@ -213,7 +213,7 @@ header img {
     color: white;
   }
 
-  .header-text p {
+  .header-text .header-text-p-p {
     color: white;
     text-align: start;
     width: 80%;
@@ -1041,7 +1041,7 @@ select.search-input {
 
 .slider-track {
   display: flex;
-  gap: 24px;
+  gap: 30px;
   /* Required 32px gap */
   will-change: transform;
   transform: translateX(0);
@@ -1395,7 +1395,7 @@ select.search-input {
 /*Section 1 Destinations*/
 .section-1-destionations {
   .section-1-galery .slider-track {
-    gap: 16px;
+    gap: 30px;
   }
 
   .slider-track article:first-of-type {
@@ -1414,7 +1414,7 @@ select.search-input {
 
   .slider-track {
     display: flex;
-    gap: 16px;
+    gap: 30px;
   }
 
   .container {
@@ -1520,13 +1520,13 @@ select.search-input {
   z-index: 3;
 
   p,
-  h5 {
+  .h5-style {
     grid-column: 2/span 10;
     text-align: center;
   }
 
   p {
-    font-weight: 500;
+    font-weight: 300;
     font-style: Medium;
     font-size: 42px;
     leading-trim: NONE;
@@ -1548,7 +1548,7 @@ select.search-input {
 /*Section 3*/
 .section-3{
   .grid{
-    row-gap: 60px;
+    row-gap: 24px;
   }
 }
 .section-3-element {
@@ -1562,7 +1562,7 @@ select.search-input {
   background-color: #132b51;
 
   span {
-    font-size: 64px;
+    font-size: 60px;
     position: absolute;
     left: 24px;
     bottom: 24px;
@@ -1610,7 +1610,7 @@ select.search-input {
   left: 50%;
   top: 50%;
   transform: translate3d(-50%, -50%, 0);
-
+display: none;
 }
 
 .section-3-text-up {
@@ -1657,6 +1657,9 @@ select.search-input {
 .s-3-p {
   padding: 0 14px;
   margin-top: 8px;
+  font-size: 1px;
+  color: white;
+
 }
 
 
@@ -2059,6 +2062,7 @@ select.search-input {
    while the inner .pin stays fixed in view. */
 .grow-section {
   height: calc(100vh + var(--grow-distance, 120vh));
+  padding-top: 0px;
 }
 
 .grow-section .pin {
@@ -2548,12 +2552,12 @@ select.search-input {
 .review_track {
   display: flex;
   align-items: stretch;
-  gap: 16px;
+  gap: 30px;
   will-change: transform;
 }
 
 .review_card {
-  flex: 0 0 calc((100% - 32px) / 3);
+  flex: 0 0 calc((100% - 60px) / 3);
   background: #ffffff;
   border-radius: 16px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
@@ -2576,7 +2580,7 @@ select.search-input {
   -webkit-user-select: none;
   -moz-user-select: none;
   user-select: none;
-  color: #bf9b30;
+  color: #132b51;
   line-height: 1;
 }
 
@@ -2616,9 +2620,9 @@ select.search-input {
 .review_stars {
   display: inline-flex;
   gap: 2px;
-  color: #FFD700;
+  color: #132b51;
   line-height: 1;
-  fill: #bf9b30;
+  fill: #132b51;
 }
 
 .review_stars .star {
@@ -3443,7 +3447,7 @@ text-transform: uppercase;
     background-color: #132b51;
   }
 
-  .header-text h6 {
+  .header-text .hero-subheadline {
     padding-bottom: 32px;
     margin-bottom: 32px;
     color: white;
@@ -3583,7 +3587,7 @@ text-transform: uppercase;
   }
 
   .section-2 p,
-  .section-2 h5 {
+  .section-2 .h5-style {
     grid-column: span 12;
     text-align: center;
   }
@@ -3599,7 +3603,7 @@ text-transform: uppercase;
 
   .section-3 {
     .grid {
-      row-gap: 32px;
+      row-gap: 18px;
     }
   }
 
@@ -4049,7 +4053,7 @@ text-transform: uppercase;
     padding-bottom: 48px;
   }
 
-  .header-text h6 {
+  .header-text .hero-subheadline {
     padding-bottom: 22px;
     margin-bottom: 22px;
   }
@@ -4092,7 +4096,7 @@ text-transform: uppercase;
    .header-2 .header-text {
     grid-column: span 12;
   }
-  .header-2 .header-text p {
+  .header-2 .header-text .header-text-p-p {
   width: 100%;
   line-height: 1.6;
 }

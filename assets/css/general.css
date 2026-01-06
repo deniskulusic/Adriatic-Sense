@@ -497,7 +497,25 @@ h5 {
   text-align: center;
 }
 
+.h5-style {
+  font-family: "Molde Expanded", sans-serif;
+  font-weight: 600;
+  font-style: Black;
+  font-size: 18px;
+  line-height: 164%;
+  letter-spacing: 0px;
+  text-align: center;
+}
+
 h6 {
+  font-family: "Molde Expanded", sans-serif;
+  font-weight: 400;
+  font-size: 40px;
+  line-height: 40px;
+  vertical-align: middle;
+}
+
+.hero-subheadline {
   font-family: "Molde Expanded", sans-serif;
   font-weight: 400;
   font-size: 40px;
@@ -1280,21 +1298,22 @@ footer h3 {
 }
 
 .footer-title {
-  font-size: 20px;
+  font-size: 19px;
   font-weight: 500;
-  margin-bottom: 55px;
+  margin-bottom: 40px;
   color: white;
 }
 
 .footer-text {
   color: rgb(142, 159, 172);
   font-size: 17px;
-  line-height: 25.5px;
+  line-height: 1.1;
   margin-bottom: 35px;
   align-items: end;
   justify-content: start;
   margin-left: -10px;
   transition: 0.3s;
+  font-family: "TT Norms Pro Expanded";
 }
 .footer-text img {
   transform: translate3d(-100%, 100%, 0);
@@ -1319,18 +1338,19 @@ footer h3 {
 }
 
 .footer-element-last {
-  gap: 25px;
+  gap: 22px;
   grid-column: span 3;
 }
 
 .footer-phone {
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 500;
   color: white;
+  line-height: 1.4;
 }
 
 .footer-last {
-  font-size: 20px;
+  font-size: 19px;
   color: rgb(142, 159, 172);
   transition: 0.3s;
 }
@@ -1352,7 +1372,7 @@ footer h3 {
   background-color: rgb(142, 159, 172);
 }
 .footer-bottom a {
-  font-size: 17px;
+  font-size: 16px;
   color: rgb(142, 159, 172);
   transition: 0.3s;
 }
@@ -1478,7 +1498,15 @@ footer h3 {
   h5 {
     font-size: 16px;
   }
+  .h5-style {
+    font-size: 16px;
+  }
   h6 {
+    font-size: 30px;
+    /* Scaled down similarly to h2 */
+    line-height: 36px;
+  }
+  .hero-subheadline {
     font-size: 30px;
     /* Scaled down similarly to h2 */
     line-height: 36px;
@@ -1565,7 +1593,15 @@ footer h3 {
     font-size: 14px;
     line-height: 1.5;
   }
+  .h5-style {
+    font-size: 14px;
+    line-height: 1.5;
+  }
   h6 {
+    font-size: 24px;
+    line-height: 1.2;
+  }
+  .hero-subheadline {
     font-size: 24px;
     line-height: 1.2;
   }
