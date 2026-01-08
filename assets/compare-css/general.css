@@ -579,7 +579,7 @@ p {
   font-family: "TT Norms Pro Expanded", sans-serif;
   font-weight: 300;
   font-size: 17px;
-  line-height: 27px;
+  line-height: 24px;
   letter-spacing: 0%;
 }
 
@@ -611,8 +611,8 @@ p {
 }
 
 .main-button {
-  padding: 14px 56px;
-  font-size: 18px;
+  padding: 12px 38px;
+  font-size: 16px;
   border: 1px solid white;
   color: white;
   transition: 0.3s;
@@ -1613,25 +1613,6 @@ footer h3 {
 
   .menu-active .menu-div {
     height: calc(100dvh - 90px);
-  }
-
-  .footer-phone {
-    font-size: 20px;
-  }
-
-  .menu-filled .logo img {
-    padding: 10px 40px;
-    padding-left: 40px;
-    opacity: 0;
-    padding-left: 0px;
-  }
-
-  .footer-element-last {
-    gap: 20px;
-  }
-
-  .footer-last {
-    font-size: 18px;
   }
 }
 
